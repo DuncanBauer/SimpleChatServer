@@ -1,0 +1,9 @@
+[submodule "Client/Vendor/SDL"]
+	path = Client/Vendor/SDL
+	url = https://github.com/libsdl-org/SDL.git
+[submodule "Client/Vendor/imgui"]
+	path = Client/Vendor/imgui
+	url = https://github.com/ocornut/imgui.git
+[submodule "Core/Vendor/spdlog"]
+	path = Core/Vendor/spdlog
+	url = https://github.com/gabime/spdlog.git
