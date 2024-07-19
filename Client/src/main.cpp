@@ -119,6 +119,9 @@ int main(int, char**)
 
     try
     {
+        // Initialize logging
+        Logger::init();
+
         net::TCPClient client;
         std::string host = "127.0.0.1";
         client.connect(host, 60000);
@@ -161,7 +164,8 @@ int main(int, char**)
                         std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
                         std::chrono::system_clock::time_point then;
                         packet >> then;
-                        std::cout << "Ping: " << std::chrono::duration<double>(now - then).count() << '\n';
+                        //std::cout << "Ping: " << std::chrono::duration<double>(now - then).count() << '\n';
+                        CLIENT_INFO("Ping: {}", std::chrono::duration<double>(now - then).count());
                         break;
                     }
                     default: break;
@@ -241,8 +245,8 @@ int main(int, char**)
     }
     catch (std::exception& e)
     {
-        //CLIENT_ERROR("{}", e.what());
-        std::cerr << e.what() << std::endl;
+        CLIENT_ERROR("{}", e.what());
+        //std::cerr << e.what() << std::endl;
     }
 #ifdef __EMSCRIPTEN__
     EMSCRIPTEN_MAINLOOP_END;

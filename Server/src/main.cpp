@@ -1,15 +1,13 @@
 #include <logging/Logger.h>
 #include <net/TCPServer.h>
-#include <iostream>
 
 int main() 
 {
     // Initialize logging
-    //Logger::init();
+    Logger::init();
 
     try
     {
-        //SERVER_INFO("CONNECTING");
         net::TCPServer server(60000);
         server.start();
 
@@ -20,7 +18,6 @@ int main()
     }
     catch (std::exception& e)
     {
-        //SERVER_ERROR("{0}", e.what());
-         std::cerr << e.what() << std::endl;
+        SERVER_ERROR("{}", e.what());
     }
 }
