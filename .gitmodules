@@ -4,3 +4,10 @@
 [submodule "Core/Vendor/spdlog"]
 	path = Core/Vendor/spdlog
 	url = https://github.com/gabime/spdlog.git
+[submodule "Client/Vendor/imgui"]
+	path = Client/Vendor/imgui
+	url = https://github.com/ocornut/imgui.git
+	branch = docking
+[submodule "Server/Vendor/mongo-cxx-driver"]
+	path = Server/Vendor/mongo-cxx-driver
+	url = https://github.com/mongodb/mongo-cxx-driver.git
