@@ -8,8 +8,8 @@ bldcfg = sys.argv[1]
 print("Building SDL")
 subprocess.call("python3 scripts/buildSDL.py {}".format(bldcfg), shell=True)
 
-print("Building Cryptopp")
-subprocess.call("python3 scripts/buildCryptopp.py {}".format(bldcfg), shell=True)
+# print("Building Cryptopp")
+# subprocess.call("python3 scripts/buildCryptopp.py {}".format(bldcfg), shell=True)
 
 # print("Building Spdlog")
 # subprocess.call("python3 scripts/buildSpdlog.py {}".format(bldcfg), shell=True)

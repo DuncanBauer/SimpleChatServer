@@ -4,7 +4,7 @@
 
 #include <logging/Logger.h>
 #include <net/TCPServer.h>
-#include "MongoDbHandler.h"
+#include "Global.h"
 
 int main() 
 {
@@ -13,17 +13,18 @@ int main()
 
     // Initialize MongoDB instance
     mongocxx::instance instance;
-    MongoDbHandler handler;
 
-    //handler.changeDisplayName("username", "omg wut");
-    //handler.changeDisplayName("username1", "newDisplayName1");
-    //handler.deleteUser("duncan");
     //handler.registerUser("duncan", "password", "erotichousecat");
-    handler.login("duncan", "password");
+    //handler.login("duncan", "password");
+    //handler.changeDisplayName("duncan", "moistoyster");
+    //handler.logout("duncan");
+    //handler.createServer("duncan", "duncan's server");
+    //handler.deleteServer("duncan's server");
+    //handler.deleteUser("duncan");
 
-    //handler.deleteUser("stefan");
     //handler.registerUser("stefan", "password", "erotichousecat");
-    handler.login("stefan", "password1");
+    //handler.login("stefan", "password1");
+    //handler.deleteUser("stefan");
 
     try
     {

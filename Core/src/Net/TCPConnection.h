@@ -112,13 +112,13 @@ namespace net
                     // If the queue has a message in it, then assume that it is in the process of asynchronously being written.
                     bool writingMessage = !m_outgoingPackets.empty();
 
-            // Either way add the message to the queue to be output.
-            m_outgoingPackets.push_back(packet);
+                    // Either way add the message to the queue to be output.
+                    m_outgoingPackets.push_back(packet);
 
-            // If no messages were available to be written, then start the process of writing the
-            // message at the front of the queue.
-            if (!writingMessage)
-                writeHeader();
+                    // If no messages were available to be written, then start the process of writing the
+                    // message at the front of the queue.
+                    if (!writingMessage)
+                        writeHeader();
                 });
         }
 

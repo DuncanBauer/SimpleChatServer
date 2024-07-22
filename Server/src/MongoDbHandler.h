@@ -75,11 +75,10 @@ public:
     //    "timestamp" : "timestamp"
     //}
 
-    void registerUser(const std::string& username, const std::string& password, const std::string& display_name);
+    void registerUser(const std::string& username, const std::string& password);
     void deleteUser(const std::string& username);
     bool login(const std::string& username, const std::string& password);
     void logout(const std::string& username);
-    void changeDisplayName(const std::string& username, const std::string& newDisplayName);
 
     void createServer(const std::string& user, const std::string& serverName);
     void deleteServer(std::string serverName);

@@ -1,18 +1,51 @@
+#include <iostream>
+
 #include "ChatWindow.h"
+#include "Global.h"
 
 void showChatWindow(ImGuiIO& io, ImVec4 clear_color)
 {
-    static float f = 0.0f;
-    static int counter = 0;
+    ImGui::Begin("Discord Clone");
 
-    ImGui::Begin("Hello, world!");                          // Create a window called "Hello, world!" and append into it.
-    ImGui::Text("This is some useful text.");               // Display some text (you can use a format strings too)
-    ImGui::SliderFloat("float", &f, 0.0f, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
-    ImGui::ColorEdit3("clear color", (float*)&clear_color); // Edit 3 floats representing a color
-    if (ImGui::Button("Button"))                            // Buttons return true when clicked (most widgets return true when edited/activated)
-        counter++;
-    ImGui::SameLine();
-    ImGui::Text("counter = %d", counter);
+    static char username[64] = "username123";
+    static char password[64] = "password123";
+    
+    ImGui::InputText("Username", username, IM_ARRAYSIZE(password));
+    ImGui::InputText("password", password, IM_ARRAYSIZE(password), ImGuiInputTextFlags_Password);
+
+    
+    if (ImGui::Button("Login"))
+    {
+        std::string susername;
+        std::string spassword;
+
+        susername = stripWhitespace(username, 64);
+        spassword = stripWhitespace(password, 64);
+
+        client.tryLogin(susername, spassword);
+    }
+
+    if (ImGui::Button("Register"))
+    {
+        std::string susername;
+        std::string spassword;
+
+        susername = stripWhitespace(username, 64);
+        spassword = stripWhitespace(password, 64);
+
+        client.tryRegister(susername, spassword);
+    }
+
     ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
     ImGui::End();
 };
+
+std::string stripWhitespace(char* data, int size)
+{
+    std::string ret;
+    for (int i = 0; i < size; i++)
+        if (data[i] != ' ' && data[i] != '\0' && data[i] != '\n' && data[i] != '\t')
+            ret += data[i];
+
+    return ret;
+}

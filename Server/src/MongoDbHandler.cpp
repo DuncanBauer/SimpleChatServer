@@ -12,7 +12,7 @@ void MongoDbHandler::pingDB()
     std::cout << "Pinged your deployment. You successfully connected to MongoDB!" << '\n';
 }
 
-void MongoDbHandler::registerUser(const std::string& username, const std::string& password, const std::string& display_name)
+void MongoDbHandler::registerUser(const std::string& username, const std::string& password)
 {
     mongocxx::collection collection = m_db[k_usersCollection];
 
@@ -28,7 +28,6 @@ void MongoDbHandler::registerUser(const std::string& username, const std::string
         << "username" << username
         << "password_hash" << hashedPassword
         << "salt" << salt
-        << "display_name" << display_name
         << "servers" << serversArr
         << "created_at" << std::to_string(getSecondsSinceEpoch())
         << "last_login" << 0
@@ -146,37 +145,6 @@ void MongoDbHandler::logout(const std::string& username)
     }
 }
 
-void MongoDbHandler::changeDisplayName(const std::string& username, const std::string& newDisplayName)
-{
-    mongocxx::collection collection = m_db[k_usersCollection];
-
-    // Define the filter document
-    auto filter = bsoncxx::builder::stream::document{}
-    << "username" << username << bsoncxx::builder::stream::finalize;
-
-    // Define the update
-    auto update = bsoncxx::builder::stream::document{}
-        << "$set"
-        << bsoncxx::builder::stream::open_document
-        << "displayName" << newDisplayName
-        << bsoncxx::builder::stream::close_document
-        << bsoncxx::builder::stream::finalize;
-
-    // Set options to return the updated document
-    mongocxx::options::find_one_and_update options{};
-    options.return_document(mongocxx::options::return_document::k_after);
-
-    // Perform the find_one_and_update operation
-    bsoncxx::stdx::optional<bsoncxx::document::value> result =
-        collection.find_one_and_update(filter.view(), update.view(), options);
-
-    // Check if a document was found and updated
-    if (result)
-        std::cout << bsoncxx::to_json(*result) << '\n';
-    else
-        std::cout << "No document matched the filter criteria." << '\n';
-}
-
 void MongoDbHandler::joinServer()
 {}
 
@@ -189,6 +157,7 @@ void MongoDbHandler::createServer(const std::string& user, const std::string& se
 
     // Initialize empty members array
     bsoncxx::builder::basic::array membersArr = bsoncxx::builder::basic::array{};
+    membersArr.append(user);
 
     // Initialize channels array
     bsoncxx::builder::basic::array channelsArr = bsoncxx::builder::basic::array{};
@@ -206,6 +175,8 @@ void MongoDbHandler::createServer(const std::string& user, const std::string& se
     // Perform insertion
     auto result = collection.insert_one(newDoc.view());
 
+    // Add server to user's server list
+
     // Check if a server was created
     if (result)
         std::cout << "Server successfully created\n";
@@ -221,6 +192,8 @@ void MongoDbHandler::deleteServer(std::string serverName)
     auto filter = bsoncxx::builder::stream::document{}
         << "name" << serverName
         << bsoncxx::builder::stream::finalize;
+
+    // Go through the members list and remove the server from each users' server list
 
     // Perform the delete_one operation
     auto result = collection.delete_one(filter.view());
