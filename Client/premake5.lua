@@ -9,6 +9,7 @@ project "Client"
 	files
 	{
 		"src/**.cpp",
+		"src/**.h",
 		
 		-- Core
 		"../Core/src/**.cpp",

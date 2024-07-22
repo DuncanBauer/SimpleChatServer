@@ -9,6 +9,7 @@ project "Server"
 	files
 	{
 		"src/**.cpp",
+		"src/**.h",
 
 		-- Core
 		"../Core/src/**.cpp",
@@ -19,7 +20,21 @@ project "Server"
 	{
 		"%{IncludeDir.Core}",
 		"%{IncludeDir.ASIO}",
+		"%{IncludeDir.Cryptopp}",
+		"%{IncludeDir.MongoC}",
+		"%{IncludeDir.MongoCXX}",
+		"%{IncludeDir.Bson}",
+		"%{IncludeDir.BsonCXX}",
 		"%{IncludeDir.spdlog}"
+	}
+
+	links
+	{
+		"%{LinkDir.Cryptopp}",
+		"%{LinkDir.MongoC}",
+		"%{LinkDir.MongoCXX}",
+		"%{LinkDir.Bson}",
+		"%{LinkDir.BsonCXX}"
 	}
 
 	filter "system:windows"
@@ -35,7 +50,8 @@ project "Server"
 	filter "configurations:Debug"
 		defines 
 		{
-			"DEBUG"
+			"DEBUG",
+			"STATIC_CONCPP"
 		}
 		runtime "Debug"
 		symbols "on"
@@ -43,7 +59,8 @@ project "Server"
 	filter "configurations:Release"
 		defines
 		{
-			"NDEBUG"
+			"NDEBUG",
+			"STATIC_CONCPP"
 		}
 		runtime "Release"
 		optimize "on"
