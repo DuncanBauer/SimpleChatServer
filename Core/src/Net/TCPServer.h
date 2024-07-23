@@ -35,6 +35,11 @@ namespace net
         ~TCPServer()
         {}
 
+        MongoDbHandler& getDbHandler()
+        {
+            return m_dbHandler;
+        }
+
     protected:
         bool onClientConnect(clientConnection client) override
         {

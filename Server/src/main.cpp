@@ -18,29 +18,24 @@ int main()
 
     try
     {
-        //handler.deleteUser("duncan");
-        //handler.deleteUser("duncan");
-        //handler.registerUser("duncan", "password");
-        //handler.registerUser("duncan", "password");
-        //handler.registerUser("duncan", "password");
+        net::TCPServer server(60000);
+        server.start();
+
+        server.getDbHandler().registerUser("duncan", "password");
         //handler.registerUser("duncan", "password");
         //handler.login("duncan", "password");
         //handler.logout("duncan");
-        //handler.createServer("duncan", "duncan's server");
-        //handler.deleteServer("duncan's server");
-        //handler.deleteUser("duncan");
+        server.getDbHandler().createServer("duncan", "duncan's server");
+        server.getDbHandler().createServer("duncan", "duncan's server");
 
-        //handler.registerUser("stefan", "password");
-        //handler.login("stefan", "password1");
-        //handler.deleteUser("stefan");
-
-        net::TCPServer server(60000);
-        server.start();
+        //server.getDbHandler().deleteServer("duncan's server");
+        //server.getDbHandler().deleteUser("duncan");
 
         while (1)
         {
             server.update(-1, true);
         }
+
     }
     catch (std::exception& e)
     {

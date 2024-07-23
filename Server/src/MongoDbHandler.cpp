@@ -196,23 +196,24 @@ bool MongoDbHandler::leaveServer()
     return true;
 }
 
-bool MongoDbHandler::createServer(const std::string& user, const std::string& serverName)
+bool MongoDbHandler::createServer(const std::string& username, const std::string& serverName)
 {
     try
     {
-        mongocxx::collection collection = m_db[k_serversCollection];
+        mongocxx::collection serverCollection = m_db[k_serversCollection];
+        mongocxx::collection userCollection = m_db[k_usersCollection];
 
         // Initialize empty members array
         bsoncxx::builder::basic::array membersArr = bsoncxx::builder::basic::array{};
-        membersArr.append(user);
+        membersArr.append(username);
 
         // Initialize channels array
         bsoncxx::builder::basic::array channelsArr = bsoncxx::builder::basic::array{};
+        channelsArr.append("Home");
 
-        // Prepare document
-        auto builder = bsoncxx::builder::stream::document{};
-        bsoncxx::document::value newDoc =
-            builder << "owner_id" << user
+        // Prepare server document
+        auto builder = bsoncxx::builder::stream::document{}
+            << "owner_id" << username
             << "name" << serverName
             << "members" << membersArr
             << "channels" << channelsArr
@@ -220,14 +221,43 @@ bool MongoDbHandler::createServer(const std::string& user, const std::string& se
             << bsoncxx::builder::stream::finalize;
 
         // Perform insertion
-        auto result = collection.insert_one(newDoc.view());
+        auto result = serverCollection.insert_one(builder.view());
 
-        // Add server to user's server list
-
-        // Check if a server was created
+        // Check if a server was successfully created
         if (result)
         {
             std::cout << "Server successfully created\n";
+
+            // Add server to user's server list
+            // Define the filter to find the user document to update server list
+            auto filter = bsoncxx::builder::stream::document{}
+                << "username" << username
+                << bsoncxx::builder::stream::finalize;
+
+            // Define the update to update last_login and status
+            auto update = bsoncxx::builder::stream::document{}
+                << "$push"
+                << bsoncxx::builder::stream::open_document
+                << "servers" << serverName
+                << bsoncxx::builder::stream::close_document
+                << bsoncxx::builder::stream::finalize;
+
+            // Perform the update operation
+            try
+            {
+                auto updateResult = userCollection.update_one(filter.view(), update.view());
+                if (updateResult) {
+                    std::cout << "Matched " << updateResult->matched_count() << " document(s)" << std::endl;
+                    std::cout << "Modified " << updateResult->modified_count() << " document(s)" << std::endl;
+                }
+                else {
+                    std::cout << "No documents matched the filter" << std::endl;
+                }
+            }
+            catch (const std::exception& e) {
+                std::cerr << "An error occurred: " << e.what() << std::endl;
+            }
+
             return true;
         }
         else
