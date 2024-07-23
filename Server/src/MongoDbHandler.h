@@ -12,42 +12,42 @@
 //Users collection
 //{
 //    "_id": "user_id",
-//    "username"        : "username",
-//    "password_hash"   : "hashed_password",
-//    "salt"            : "salt",
-//    "display_name"    : "display_name",
-//    "servers"         : ["server_id_1", "server_id_2"] ,
-//    "created_at"      : "timestamp",
-//    "last_login"      : "timestamp",
-//    "status"          : "string",         // online, offline, busy, etc.
+//    "username"         : "username",
+//    "password_hash"    : "hashed_password",
+//    "salt"             : "salt",
+//    "servers"          : ["server_id_1", "server_id_2"],
+//    "created_at"       : "timestamp",
+//    "last_login"       : "timestamp",
+//    "status"           : "string",         // online, offline
+//    "displayed_status" : "string"          // online, offline, busy, etc.
 //}
 // 
 //Servers collection
 //{
-//    "_id": "server_id",
-//    "name": "server_name",
-//    "owner_id": "user_id",
-//    "members": ["user_id_1", "user_id_2"],
-//    "channels": ["channel_id_1", "channel_id_2"],
-//    "created_at": "timestamp"
+//    "_id"              : "server_id",
+//    "name"             : "server_name",
+//    "owner_id"         : "user_id",
+//    "members"          : ["user_id_1", "user_id_2"],
+//    "channels"         : ["channel_id_1", "channel_id_2"],
+//    "created_at"       : "timestamp"
 //}
 // 
 //Channels collection
 //{
-//    "_id": "channel_id",
-//    "server_id" : "server_id",
-//    "name" : "channel_name",
-//    "created_at" : "timestamp"
+//    "_id"              : "channel_id",
+//    "server_id"        : "server_id",
+//    "name"             : "channel_name",
+//    "messages"         : ["message_id_1", "message_id_2"],
+//    "created_at"       : "timestamp"
 //}
 // 
 //Messages collection
 //{
-//    "_id": "message_id",
-//    "channel_id" : "channel_id",
-//    "sender_id" : "user_id",
-//    "type" : "string", // text, image, video, etc.
-//    "content" : "message_content",
-//    "timestamp" : "timestamp"
+//    "_id"              : "message_id",
+//    "author"           : "user_id",
+//    "channel_id"       : "channel_id",
+//    "content"          : "message_content",
+//    "created_at"       : "timestamp"
 //}
 
 using seconds_t = std::chrono::seconds;
@@ -85,38 +85,37 @@ public:
     bool login(const std::string& username, const std::string& password);
     bool logout(const std::string& username);
 
-    bool createServer(const std::string& username, const std::string& serverName);
-    bool deleteServer(std::string serverName);
+    bool createServer();
+    bool deleteServer();
 
-    bool joinServer(std::string serverName, std::string username);
-    bool leaveServer(std::string serverName, std::string username);
+    bool joinServer();
+    bool leaveServer();
 
-    bool createChannel(std::string serverName, std::string channelName);
-    bool deleteChannel(std::string serverName, std::string channelName);
+    bool createChannel();
+    bool deleteChannel();
 
-    bool sendMessage(const std::string& username, const std::string& server, const std::string& channel, const std::string& message);
-    bool deleteMessage(const std::string& username, const std::string& server, const std::string& channel, const std::string& message);
-    bool editMessage(const std::string& username, const std::string& server, const std::string& channel, const std::string& message);
+    bool sendMessage();
+    bool deleteMessage();
+    bool editMessage();
 
 private:
-    bool createServerDoc();
-    bool deleteServerDoc();
+    bool createServerDoc(const std::string& serverName, const std::string& owner);
+    bool deleteServerDoc(const std::string& serverId);
     
-    bool createChannelDoc();
-    bool deleteChannelDoc();
-    bool deleteChannelDocs();
+    bool createChannelDoc(const std::string& serverId, const std::string& channelName);
+    bool deleteChannelDoc(const std::string& channelId);
+    bool deleteChannelDocs(const std::string& serverId);
     
-    bool createMessageDoc();
-    bool deleteMessageDoc();
-    bool deleteMessageDocs();
+    bool createMessageDoc(const std::string& channelId, const std::string& authorId, const std::string& content);
+    bool deleteMessageDoc(const std::string& messageId);
+    bool deleteChannelMessageDocs(const std::string& channelId);
 
-    bool removeServerFromAllMembers(std::string serverName);
+    bool removeServerFromAllMembers(const std::vector<std::string>& members, const std::string& serverId);
     
-    bool addRemoveMemberFromServer(std::string username, std::string serverName, std::string action); // Action is $push or $pull
-    bool addRemoveServerFromMember(std::string username, std::string serverName, std::string action); // Action is $push or $pull
-    
-    bool addRemoveChannelFromServer(std::string serverName, std::string channelName, std::string action); // Action is $push or $pull
-    bool addRemoveMessageFromChannel();
+    bool addRemoveMemberFromServer(const std::string& serverId, const std::string& userId, const std::string& action); // Action is $push or $pull
+    bool addRemoveServerFromUser(const std::string& userId, const std::string& serverId, const std::string& action); // Action is $push or $pull
+    bool addRemoveChannelFromServer(const std::string& serverId, const std::string& channelId, const std::string& action); // Action is $push or $pull
+    bool addRemoveMessageFromChannel(const std::string& channelId, const std::string& messageId, const std::string& action); // Action is $push or $pull
 
 
     //bool deleteChannels(std::string serverName);
