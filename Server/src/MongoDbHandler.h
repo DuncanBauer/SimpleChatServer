@@ -94,9 +94,9 @@ public:
     bool createChannel(std::string serverName, std::string channelName);
     bool deleteChannel(std::string serverName, std::string channelName);
 
-    bool sendMessage();
-    bool deleteMessage();
-    bool editMessage();
+    bool sendMessage(const std::string& username, const std::string& server, const std::string& channel, const std::string& message);
+    bool deleteMessage(const std::string& username, const std::string& server, const std::string& channel, const std::string& message);
+    bool editMessage(const std::string& username, const std::string& server, const std::string& channel, const std::string& message);
 
 private:
     bool createServerDoc();

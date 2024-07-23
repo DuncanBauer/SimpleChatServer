@@ -88,7 +88,7 @@ namespace net
             passwordSize = packet.readInt();
             password = packet.readString(passwordSize);
 
-            bool success = m_dbHandler.registerUser(username, password);
+            bool success = m_dbHandler.createUser(username, password);
 
             Packet<PacketType> retPacket;
             if (success)

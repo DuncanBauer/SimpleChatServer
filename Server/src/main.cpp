@@ -21,7 +21,7 @@ int main()
         net::TCPServer server(60000);
         server.start();
 
-        server.getDbHandler().registerUser("duncan", "password");
+        server.getDbHandler().createUser("duncan", "password");
         server.getDbHandler().createServer("duncan", "duncan's server");
         //server.getDbHandler().deleteServer("duncan's server");
         //server.getDbHandler().deleteUser("duncan");

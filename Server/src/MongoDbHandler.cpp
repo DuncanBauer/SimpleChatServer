@@ -389,7 +389,7 @@ bool MongoDbHandler::deleteChannel(std::string serverName, std::string channelNa
     return true;
 }
 
-bool MongoDbHandler::sendMessage()
+bool MongoDbHandler::sendMessage(const std::string& username, const std::string& server, const std::string& channel, const std::string& message)
 {
     SERVER_INFO("MongoDbHandle::sendMessage");
     createMessageDoc();
@@ -397,7 +397,7 @@ bool MongoDbHandler::sendMessage()
     return true;
 }
 
-bool MongoDbHandler::deleteMessage()
+bool MongoDbHandler::deleteMessage(const std::string& id)
 {
     SERVER_INFO("MongoDbHandle::deleteMessage");
     deleteMessageDoc();
@@ -405,12 +405,39 @@ bool MongoDbHandler::deleteMessage()
     return true;
 }
 
-bool MongoDbHandler::editMessage()
+bool MongoDbHandler::editMessage(const std::string& id, const std::string& message)
 {
     SERVER_INFO("MongoDbHandle::editMessage");
-    return true;
-}
+    try
+    {
+        // Define document
+        auto filter = bsoncxx::builder::stream::document{}
+            << "id" << id
+            << bsoncxx::builder::stream::finalize;
+        
+        auto update = bsoncxx::builder::stream::document{}
+            << "$set"
+            << bsoncxx::builder::stream::open_document
+            << "context" << message
+            << "edited_at" << std::to_string(getSecondsSinceEpoch())
+            << bsoncxx::builder::stream::close_document
+            << bsoncxx::builder::stream::finalize;
 
+        // Perform insertion
+        if (!updateOneWithRetry(m_messageCollection, filter.view(), update.view()))
+        {
+            SERVER_INFO("Message document could not be created");
+            return false;
+        }
+
+        return true;
+    }
+    catch (std::exception& e)
+    {
+        SERVER_ERROR("{}", e.what());
+        return false;
+    }
+}
 
 
 
@@ -576,6 +603,9 @@ bool MongoDbHandler::addRemoveMemberFromServer(std::string username, std::string
 }
 
 bool MongoDbHandler::addRemoveMessageFromChannel() {}
+
+
+
 
 //bool MongoDbHandler::deleteChannels(std::string serverName)
 //{
