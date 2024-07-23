@@ -6,6 +6,13 @@ namespace net
 {
     using asio::ip::tcp;
 
+    enum ClientState
+    {
+        NOT_AUTHED,
+        AUTHED,
+        AUTHED_LOGGEDIN
+    };
+
     template<typename T>
     class TCPConnection : public std::enable_shared_from_this<TCPConnection<T>>
     {
@@ -90,9 +97,15 @@ namespace net
             return m_socket.is_open();
         }
 
-        // Listen for incoming packets
-        void listen()
-        {}
+        ClientState getClientState()
+        {
+            return m_clientState;
+        }
+
+        void updateClientState(ClientState state)
+        {
+            m_clientState = state;
+        }
 
         // Send a written packet to the client/server
         void send(const Packet<T>& packet)
@@ -252,6 +265,9 @@ namespace net
     private:
         uint32_t m_id = 0;
         Owner m_owner = Owner::Server;
+
+        // ClientState
+        ClientState m_clientState = ClientState::NOT_AUTHED;
 
         // Unique socket to remote connection
         tcp::socket m_socket;

@@ -27,7 +27,6 @@ namespace net
         // Packets starting with Client_ are packets being sent TO the client
         Client_Return_Ping,
         Client_Connected,
-        Client_Accepted,
 
         Client_Register_Success,
         Client_Register_Fail,

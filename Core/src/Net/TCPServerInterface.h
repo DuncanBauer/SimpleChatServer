@@ -205,11 +205,6 @@ namespace net
         virtual void onMessage(std::shared_ptr<TCPConnection<PacketType>> client, Packet<PacketType>& packet)
         {}
 
-    public:
-        // Called when a client is validated
-        virtual void onClientValidated(std::shared_ptr<TCPConnection<PacketType>> client)
-        {}
-
     private:
         // Order of declaration matters regardless of whether i want it to be
         asio::io_context m_ioContext;

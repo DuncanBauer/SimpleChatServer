@@ -47,22 +47,18 @@ namespace net
 
         void onClientDisconnect(clientConnection client) override
         {
-            if (client)
-            {
-            }
-        }
-
-        void onClientValidated(clientConnection client) override
-        {
-            // Client passed validation, so send them a packet to inform them they can communicate
-            Packet<PacketType> packet;
-            packet.header.id = PacketType::Client_Accepted;
-            client->send(packet);
         }
 
         void onMessage(clientConnection client, Packet<PacketType>& packet) override
         {
-            m_packetHandlers[packet.header.id](client, packet);
+            // Make sure the client is logged in before handling any packets other than Login or Register
+            if (packet.header.id != PacketType::Server_Register && packet.header.id != PacketType::Server_Login)
+            {
+                if (client->getClientState() == ClientState::AUTHED_LOGGEDIN)
+                {
+                    m_packetHandlers[packet.header.id](client, packet);
+                }
+            }
         }
 
         void handleGetPing(clientConnection& client, Packet<PacketType>& packet)
@@ -115,9 +111,14 @@ namespace net
 
             Packet<PacketType> retPacket;
             if (success)
+            {
                 retPacket.header.id = PacketType::Client_Login_Success;
+                client->updateClientState(ClientState::AUTHED_LOGGEDIN);
+            }
             else
+            {
                 retPacket.header.id = PacketType::Client_Login_Fail;
+            }
             client->send(retPacket);
         }
 
@@ -135,9 +136,14 @@ namespace net
 
             Packet<PacketType> retPacket;
             if (success)
+            {
                 retPacket.header.id = PacketType::Client_Logout_Success;
+                client->updateClientState(ClientState::NOT_AUTHED);
+            }
             else
+            {
                 retPacket.header.id = PacketType::Client_Logout_Fail;
+            }
             client->send(retPacket);
         }
 

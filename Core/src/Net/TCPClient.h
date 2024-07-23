@@ -22,7 +22,6 @@ namespace net
         {
             m_packetHandlers[PacketType::Client_Return_Ping]      = [this](Packet<PacketType>& packet) { this->handleReturnPing(packet); };
             m_packetHandlers[PacketType::Client_Connected]        = [this](Packet<PacketType>& packet) { this->handleConnected(packet); };
-            m_packetHandlers[PacketType::Client_Accepted]         = [this](Packet<PacketType>& packet) { this->handleAccepted(packet); };
             m_packetHandlers[PacketType::Client_Register_Success] = [this](Packet<PacketType>& packet) { this->handleRegisterSuccess(packet); };
             m_packetHandlers[PacketType::Client_Register_Fail]    = [this](Packet<PacketType>& packet) { this->handleRegisterFail(packet); };
             m_packetHandlers[PacketType::Client_Login_Success]    = [this](Packet<PacketType>& packet) { this->handleLoginSuccess(packet); };
@@ -119,11 +118,6 @@ namespace net
         void handleConnected(Packet<PacketType>& packet)
         {
             CLIENT_INFO("Connected to server");
-        }
-
-        void handleAccepted(Packet<PacketType>& packet)
-        {
-            CLIENT_INFO("Accepted by server");
         }
 
         void handleRegisterSuccess(Packet<PacketType>& packet)
