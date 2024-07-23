@@ -92,17 +92,17 @@ public:
     bool leaveServer();
 
     bool createChannel();
-    bool deleteChannel();
+    bool deleteChannel(const std::string& channelId);
 
     bool sendMessage(const std::string& authorId, const std::string& channelId, const std::string& content);
     bool deleteMessage(const std::string& channelId, const std::string& messageId);
     bool editMessage(const std::string& messageId, const std::string& message);
 
 private:
-    bool createServerDoc(const std::string& serverName, const std::string& owner);
+    bool createServerDoc(const std::string& serverName, const std::string& owner, std::string& serverId);
     bool deleteServerDoc(const std::string& serverId);
     
-    bool createChannelDoc(const std::string& serverId, const std::string& channelName);
+    bool createChannelDoc(const std::string& serverId, const std::string& channelName, std::string& channelId);
     bool deleteChannelDoc(const std::string& channelId);
     bool deleteChannelDocs(const std::string& serverId);
     
