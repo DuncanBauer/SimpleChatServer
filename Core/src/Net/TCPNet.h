@@ -12,17 +12,19 @@ namespace net
         Server_Register,
         Server_Login,
         Server_Logout,
-        
+
         Server_CreateServer,
         Server_DeleteServer,
 
-        Server_AddChannelToServer,
-        Server_RemoveChannelFromServer,
+        Server_CreateChannel,
+        Server_DeleteChannel,
+
         Server_JoinServer,
         Server_LeaveServer,
-        Server_JoinChannel,
-        Server_LeaveChannel,
 
+        Server_SendMessage,
+        Server_DeleteMessage,
+        Server_EditMessage,
 
         // Packets starting with Client_ are packets being sent TO the client
         Client_Return_Ping,
@@ -40,18 +42,22 @@ namespace net
         Client_DeleteServer_Success,
         Client_DeleteServer_Fail,
 
-        Client_AddChannelToServer_Success,
-        Client_AddChannelToServer_Fail,
-        Client_RemoveChannelFromServer_Success,
-        Client_RemoveChannelFromServer_Fail,
+        Client_CreateChannel_Success,
+        Client_CreateChannel_Fail,
+        Client_DeleteChannel_Success,
+        Client_DeleteChannel_Fail,
+
         Client_JoinServer_Success,
         Client_JoinServer_Fail,
         Client_LeaveServer_Success,
         Client_LeaveServer_Fail,
-        Client_JoinChannel_Success,
-        Client_JoinChannel_Fail,
-        Client_LeaveChannel_Success,
-        Client_LeaveChannel_Fail,
+
+        Client_SendMessage_Success,
+        Client_SendMessage_Fail,
+        Client_DeleteMessage_Success,
+        Client_DeleteMessage_Fail,
+        Client_EditMessage_Success,
+        Client_EditMessage_Fail,
     };
 
     template <typename T>

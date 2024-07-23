@@ -80,7 +80,7 @@ namespace net
             send(packet);
         }
 
-        void tryLogin(std::string username, std::string password)
+        void tryLogin(const std::string& username, const std::string& password)
         {
             Packet<PacketType> packet;
             packet.header.id = PacketType::Server_Login;
@@ -93,7 +93,7 @@ namespace net
             send(packet);
         }
 
-        void tryRegister(std::string username, std::string password)
+        void tryRegister(const std::string& username, const std::string& password)
         {
             Packet<PacketType> packet;
             packet.header.id = PacketType::Server_Register;
@@ -105,6 +105,123 @@ namespace net
             
             send(packet);
         }
+
+        void tryCreateServer(const std::string& userId, const std::string& serverName)
+        {
+            Packet<PacketType> packet;
+            packet.header.id = PacketType::Server_CreateServer;
+
+            packet.writeInt((uint32_t)userId.size());
+            packet.writeString(userId);
+            packet.writeInt((uint32_t)serverName.size());
+            packet.writeString(serverName);
+
+            send(packet);
+        }
+
+        void tryDeleteServer(const std::string& serverId)
+        {
+            Packet<PacketType> packet;
+            packet.header.id = PacketType::Server_DeleteServer;
+
+            packet.writeInt((uint32_t)serverId.size());
+            packet.writeString(serverId);
+
+            send(packet);
+        }
+
+        void tryJoinServer(const std::string& userId, const std::string& serverId)
+        {
+            Packet<PacketType> packet;
+            packet.header.id = PacketType::Server_JoinServer;
+
+            packet.writeInt((uint32_t)userId.size());
+            packet.writeString(userId);
+            packet.writeInt((uint32_t)serverId.size());
+            packet.writeString(serverId);
+
+            send(packet);
+        }
+
+        void tryLeaveServer(const std::string& userId, const std::string& serverId)
+        {
+            Packet<PacketType> packet;
+            packet.header.id = PacketType::Server_LeaveServer;
+
+            packet.writeInt((uint32_t)userId.size());
+            packet.writeString(userId);
+            packet.writeInt((uint32_t)serverId.size());
+            packet.writeString(serverId);
+
+            send(packet);
+        }
+
+        void tryCreateChannel(const std::string& serverId, const std::string& channelName)
+        {
+            Packet<PacketType> packet;
+            packet.header.id = PacketType::Server_CreateChannel;
+
+            packet.writeInt((uint32_t)serverId.size());
+            packet.writeString(serverId);
+            packet.writeInt((uint32_t)channelName.size());
+            packet.writeString(channelName);
+
+            send(packet);
+        }
+
+        void tryDeleteChannel(const std::string& channelId)
+        {
+            Packet<PacketType> packet;
+            packet.header.id = PacketType::Server_DeleteChannel;
+
+            packet.writeInt((uint32_t)channelId.size());
+            packet.writeString(channelId);
+
+            send(packet);
+        }
+
+        void trySendMessage(const std::string& authorId, const std::string& channelId, const std::string& messageContent)
+        {
+            Packet<PacketType> packet;
+            packet.header.id = PacketType::Server_SendMessage;
+
+            packet.writeInt((uint32_t)authorId.size());
+            packet.writeString(authorId);
+            packet.writeInt((uint32_t)channelId.size());
+            packet.writeString(channelId);
+            packet.writeInt((uint32_t)messageContent.size());
+            packet.writeString(messageContent);
+
+            send(packet);
+        }
+
+        void tryDeleteMessage(const std::string& channelId, const std::string& messageId)
+        {
+            Packet<PacketType> packet;
+            packet.header.id = PacketType::Server_DeleteMessage;
+
+            packet.writeInt((uint32_t)channelId.size());
+            packet.writeString(channelId);
+            packet.writeInt((uint32_t)messageId.size());
+            packet.writeString(messageId);
+
+            send(packet);
+        }
+
+        void tryEditMessage(const std::string& messageId, const std::string& content)
+        {
+            Packet<PacketType> packet;
+            packet.header.id = PacketType::Server_EditMessage;
+
+            packet.writeInt((uint32_t)messageId.size());
+            packet.writeString(messageId);
+            packet.writeInt((uint32_t)content.size());
+            packet.writeString(content);
+
+            send(packet);
+        }
+
+
 
         void handleReturnPing(Packet<PacketType>& packet)
         {

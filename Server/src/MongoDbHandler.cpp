@@ -151,7 +151,7 @@ bool MongoDbHandler::login(const std::string& username, const std::string& passw
     }
 }
 
-bool MongoDbHandler::logout(const std::string& username)
+bool MongoDbHandler::logout(const std::string& userId)
 {
     // Update user document status
     SERVER_INFO("MongoDbHandle::logout");
@@ -159,7 +159,7 @@ bool MongoDbHandler::logout(const std::string& username)
     {
         // Define the filter to find the document to update
         auto filter = bsoncxx::builder::stream::document{}
-            << "username" << username
+            << "_id" << userId
             << bsoncxx::builder::stream::finalize;
 
         // Define the update to update last_login and status
@@ -313,7 +313,7 @@ bool MongoDbHandler::deleteMessage(const std::string& channelId, const std::stri
     return true;
 }
 
-bool MongoDbHandler::editMessage(const std::string& messageId, const std::string& message)
+bool MongoDbHandler::editMessage(const std::string& messageId, const std::string& content)
 {
     SERVER_INFO("MongoDbHandle::editMessage");
     try
@@ -327,7 +327,7 @@ bool MongoDbHandler::editMessage(const std::string& messageId, const std::string
         auto update = bsoncxx::builder::stream::document{}
             << "$set"
             << bsoncxx::builder::stream::open_document
-            << "content" << message
+            << "content" << content
             << "edited_at" << std::to_string(getSecondsSinceEpoch())
             << bsoncxx::builder::stream::close_document
             << bsoncxx::builder::stream::finalize;
@@ -349,7 +349,22 @@ bool MongoDbHandler::editMessage(const std::string& messageId, const std::string
     }
 }
 
-bool MongoDbHandler::createServerDoc(const std::string& serverName, const std::string& ownerId, std::string& serverId)
+bool MongoDbHandler::getServerChannels()
+{
+    return true;
+}
+
+bool MongoDbHandler::getServerMembers()
+{
+    return true;
+}
+
+bool MongoDbHandler::getChannelMessages()
+{
+    return true;
+}
+
+bool MongoDbHandler::createServerDoc(const std::string& ownerId, const std::string& serverName, std::string& serverId)
 {
     SERVER_INFO("MongoDbHandle::createServerDoc");
     try
@@ -660,6 +675,11 @@ bool MongoDbHandler::removeServerFromAllMembers(const std::vector<std::string>& 
         SERVER_ERROR("{}", e.what());
         return false;
     }
+}
+
+bool MongoDbHandler::removeUserFromAllServers()
+{
+    return true;
 }
 
 bool MongoDbHandler::addRemoveMemberFromServer(const std::string& serverId, const std::string& userId, const std::string& action)

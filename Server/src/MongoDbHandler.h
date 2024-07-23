@@ -85,7 +85,7 @@ public:
     bool login(const std::string& username, const std::string& password);
     bool logout(const std::string& username);
 
-    bool createServer();
+    bool createServer(const std::string& ownerId, const std::string& serverName);
     bool deleteServer(const std::string& serverId);
 
     bool joinServer(const std::string& serverId, const std::string& userId);
@@ -96,14 +96,14 @@ public:
 
     bool sendMessage(const std::string& authorId, const std::string& channelId, const std::string& content);
     bool deleteMessage(const std::string& channelId, const std::string& messageId);
-    bool editMessage(const std::string& messageId, const std::string& message);
+    bool editMessage(const std::string& messageId, const std::string& content);
 
     bool getServerChannels();
     bool getServerMembers();
     bool getChannelMessages();
 
 private:
-    bool createServerDoc(const std::string& serverName, const std::string& owner, std::string& serverId);
+    bool createServerDoc(const std::string& ownerId, const std::string& serverName, std::string& serverId);
     bool deleteServerDoc(const std::string& serverId, std::vector<std::string>& channelIds, std::vector<std::string>& memberIds);
     
     bool createChannelDoc(const std::string& serverId, const std::string& channelName, std::string& channelId);
@@ -115,7 +115,8 @@ private:
     bool deleteChannelMessageDocs(const std::string& channelId);
 
     bool removeServerFromAllMembers(const std::vector<std::string>& members, const std::string& serverId);
-    
+    bool removeUserFromAllServers();
+
     bool addRemoveMemberFromServer(const std::string& serverId, const std::string& userId, const std::string& action); // Action is $push or $pull
     bool addRemoveServerFromUser(const std::string& userId, const std::string& serverId, const std::string& action); // Action is $push or $pull
     bool addRemoveChannelFromServer(const std::string& serverId, const std::string& channelId, const std::string& action); // Action is $push or $pull

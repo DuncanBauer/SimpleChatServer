@@ -9,8 +9,8 @@ void showLoginWindow(net::TCPClient& client)
 {
     ImGui::Begin("Discord Clone");
 
-    static char username[64] = "username123";
-    static char password[64] = "password123";
+    static char username[64] = "duncan";
+    static char password[64] = "password";
 
     ImGui::InputText("Username", username, IM_ARRAYSIZE(username));
     ImGui::InputText("password", password, IM_ARRAYSIZE(password));

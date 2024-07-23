@@ -59,16 +59,20 @@ namespace net
             // Make sure the client is logged in before handling any packets other than Login or Register
             if (packet.header.id != PacketType::Server_Register && packet.header.id != PacketType::Server_Login)
             {
-                if (client->getClientState() == ClientState::AUTHED_LOGGEDIN)
+                if(client->getClientState() == ClientState::AUTHED_LOGGEDIN)
                 {
                     m_packetHandlers[packet.header.id](client, packet);
                 }
+            }
+            else
+            {
+                m_packetHandlers[packet.header.id](client, packet);
             }
         }
 
         void handleGetPing(clientConnection& client, Packet<PacketType>& packet)
         {
-            spdlog::info("[{}]: Server Ping", client->getID());
+            SERVER_INFO("[{}]: Server Ping", client->getID());
             Packet<PacketType> retPacket;
             retPacket.header.id = PacketType::Client_Return_Ping;
             client->send(retPacket);
@@ -76,17 +80,12 @@ namespace net
 
         void handleRegister(clientConnection& client, Packet<PacketType>& packet)
         {
-            spdlog::info("[{}]: Register", client->getID());
+            SERVER_INFO("[{}]: Register", client->getID());
 
-            uint32_t usernameSize = 0;
-            uint32_t passwordSize = 0;
-            std::string username;
-            std::string password;
-
-            usernameSize = packet.readInt();
-            username = packet.readString(usernameSize);
-            passwordSize = packet.readInt();
-            password = packet.readString(passwordSize);
+            uint32_t usernameSize = packet.readInt();
+            std::string username = packet.readString(usernameSize);
+            uint32_t passwordSize = packet.readInt();
+            std::string password = packet.readString(passwordSize);
 
             bool success = m_dbHandler.createUser(username, password);
 
@@ -100,17 +99,12 @@ namespace net
 
         void handleLogin(clientConnection& client, Packet<PacketType>& packet)
         {
-            spdlog::info("[{}]: Login", client->getID());
+            SERVER_INFO("[{}]: Login", client->getID());
 
-            uint32_t usernameSize = 0;
-            uint32_t passwordSize = 0;
-            std::string username;
-            std::string password;
-
-            usernameSize = packet.readInt();
-            username = packet.readString(usernameSize);
-            passwordSize = packet.readInt();
-            password = packet.readString(passwordSize);
+            uint32_t usernameSize = packet.readInt();
+            std::string username = packet.readString(usernameSize);
+            uint32_t passwordSize = packet.readInt();
+            std::string password = packet.readString(passwordSize);
 
             bool success = m_dbHandler.login(username, password);
 
@@ -151,6 +145,52 @@ namespace net
             }
             client->send(retPacket);
         }
+
+        void handleCreateServer(clientConnection& client, Packet<PacketType>& packet)
+        {
+            SERVER_INFO("[{}]: Create Server", client->getID());
+        }
+
+        void handleDeleteServer(clientConnection & client, Packet<PacketType>&packet)
+        {
+            SERVER_INFO("[{}]: Delete Server", client->getID());
+        }
+        
+        void handleCreateChannel(clientConnection & client, Packet<PacketType>&packet)
+        {
+            SERVER_INFO("[{}]: Create Channel", client->getID());
+        }
+        
+        void handleDeleteChannel(clientConnection & client, Packet<PacketType>&packet)
+        {
+            SERVER_INFO("[{}]: Delete Channel", client->getID());
+        }
+        
+        void handleJoinServer(clientConnection & client, Packet<PacketType>&packet)
+        {
+            SERVER_INFO("[{}]: Join Server", client->getID());
+        }
+        
+        void handleLeaveServer(clientConnection & client, Packet<PacketType>&packet)
+        {
+            SERVER_INFO("[{}]: Leave Server", client->getID());
+        }
+        
+        void handleSendMessage(clientConnection & client, Packet<PacketType>&packet)
+        {
+            SERVER_INFO("[{}]: Send Message", client->getID());
+        }
+        
+        void handleDeleteMessage(clientConnection & client, Packet<PacketType>&packet)
+        {
+            SERVER_INFO("[{}]: Delete Message", client->getID());
+        }
+        
+        void handleEditMessage(clientConnection & client, Packet<PacketType>&packet)
+        {
+            SERVER_INFO("[{}]: Edit Message", client->getID());
+        }
+
 
     private:
         functionMap m_packetHandlers;
