@@ -87,10 +87,8 @@ namespace net
             uint32_t passwordSize = packet.readInt();
             std::string password = packet.readString(passwordSize);
 
-            bool success = m_dbHandler.createUser(username, password);
-
             Packet<PacketType> retPacket;
-            if (success)
+            if (m_dbHandler.createUser(username, password))
                 retPacket.header.id = PacketType::Client_Register_Success;
             else
                 retPacket.header.id = PacketType::Client_Register_Fail;
@@ -106,10 +104,8 @@ namespace net
             uint32_t passwordSize = packet.readInt();
             std::string password = packet.readString(passwordSize);
 
-            bool success = m_dbHandler.login(username, password);
-
             Packet<PacketType> retPacket;
-            if (success)
+            if (m_dbHandler.login(username, password))
             {
                 retPacket.header.id = PacketType::Client_Login_Success;
                 client->updateClientState(ClientState::AUTHED_LOGGEDIN);
@@ -131,10 +127,8 @@ namespace net
             usernameSize = packet.readInt();
             username = packet.readString(usernameSize);
 
-            bool success = m_dbHandler.logout(username);
-
             Packet<PacketType> retPacket;
-            if (success)
+            if (m_dbHandler.logout(username))
             {
                 retPacket.header.id = PacketType::Client_Logout_Success;
                 client->updateClientState(ClientState::NOT_AUTHED);
@@ -149,48 +143,162 @@ namespace net
         void handleCreateServer(clientConnection& client, Packet<PacketType>& packet)
         {
             SERVER_INFO("[{}]: Create Server", client->getID());
+
+            uint32_t userIdSize = packet.readInt();
+            std::string userId = packet.readString(userIdSize);
+            uint32_t serverNameSize = packet.readInt();
+            std::string serverName = packet.readString(serverNameSize);
+
+            Packet<PacketType> retPacket;
+            if (m_dbHandler.createServer(userId, serverName))
+                retPacket.header.id = PacketType::Client_CreateServer_Success;
+            else
+                retPacket.header.id = PacketType::Client_CreateServer_Fail;
+
+            client->send(retPacket);
         }
 
         void handleDeleteServer(clientConnection & client, Packet<PacketType>&packet)
         {
             SERVER_INFO("[{}]: Delete Server", client->getID());
+
+            uint32_t serverIdSize = packet.readInt();
+            std::string serverId = packet.readString(serverIdSize);
+
+            Packet<PacketType> retPacket;
+            if (m_dbHandler.deleteServer(serverId))
+                retPacket.header.id = PacketType::Client_DeleteServer_Success;
+            else
+                retPacket.header.id = PacketType::Client_DeleteServer_Fail;
+
+            client->send(retPacket);
         }
         
         void handleCreateChannel(clientConnection & client, Packet<PacketType>&packet)
         {
             SERVER_INFO("[{}]: Create Channel", client->getID());
+
+            uint32_t serverIdSize = packet.readInt();
+            std::string serverId = packet.readString(serverIdSize);
+            uint32_t channelNameSize = packet.readInt();
+            std::string channelName = packet.readString(channelNameSize);
+
+            Packet<PacketType> retPacket;
+            if (m_dbHandler.createChannel(serverId, channelName))
+                retPacket.header.id = PacketType::Client_CreateChannel_Success;
+            else
+                retPacket.header.id = PacketType::Client_CreateChannel_Fail;
+
+            client->send(retPacket);
         }
         
         void handleDeleteChannel(clientConnection & client, Packet<PacketType>&packet)
         {
             SERVER_INFO("[{}]: Delete Channel", client->getID());
+
+            uint32_t channelIdSize = packet.readInt();
+            std::string channelId = packet.readString(channelIdSize);
+
+            Packet<PacketType> retPacket;
+            if (m_dbHandler.deleteChannel(channelId))
+                retPacket.header.id = PacketType::Client_DeleteChannel_Success;
+            else
+                retPacket.header.id = PacketType::Client_DeleteChannel_Fail;
+
+            client->send(retPacket);
         }
         
         void handleJoinServer(clientConnection & client, Packet<PacketType>&packet)
         {
             SERVER_INFO("[{}]: Join Server", client->getID());
+
+            uint32_t userIdSize = packet.readInt();
+            std::string userId = packet.readString(userIdSize);
+            uint32_t serverIdSize = packet.readInt();
+            std::string serverId = packet.readString(serverIdSize);
+
+            Packet<PacketType> retPacket;
+            if (m_dbHandler.joinServer(serverId, userId))
+                retPacket.header.id = PacketType::Client_JoinServer_Success;
+            else
+                retPacket.header.id = PacketType::Client_JoinServer_Fail;
+
+            client->send(retPacket);
         }
         
         void handleLeaveServer(clientConnection & client, Packet<PacketType>&packet)
         {
             SERVER_INFO("[{}]: Leave Server", client->getID());
+
+            uint32_t userIdSize = packet.readInt();
+            std::string userId = packet.readString(userIdSize);
+            uint32_t serverIdSize = packet.readInt();
+            std::string serverId = packet.readString(serverIdSize);
+
+            Packet<PacketType> retPacket;
+            if (m_dbHandler.leaveServer(serverId, userId))
+                retPacket.header.id = PacketType::Client_LeaveServer_Success;
+            else
+                retPacket.header.id = PacketType::Client_LeaveServer_Fail;
+
+            client->send(retPacket);
         }
         
         void handleSendMessage(clientConnection & client, Packet<PacketType>&packet)
         {
             SERVER_INFO("[{}]: Send Message", client->getID());
+
+            uint32_t authorIdSize = packet.readInt();
+            std::string authorId = packet.readString(authorIdSize);
+            uint32_t channelIdSize = packet.readInt();
+            std::string channelId = packet.readString(channelIdSize);
+            uint32_t contentSize = packet.readInt();
+            std::string content = packet.readString(contentSize);
+
+            Packet<PacketType> retPacket;
+            if (m_dbHandler.sendMessage(authorId, channelId, content))
+                retPacket.header.id = PacketType::Client_SendMessage_Success;
+            else
+                retPacket.header.id = PacketType::Client_SendMessage_Fail;
+
+            client->send(retPacket);
         }
         
         void handleDeleteMessage(clientConnection & client, Packet<PacketType>&packet)
         {
             SERVER_INFO("[{}]: Delete Message", client->getID());
+
+            uint32_t channelIdSize = packet.readInt();
+            std::string channelId = packet.readString(channelIdSize);
+            uint32_t messageIdSize = packet.readInt();
+            std::string messageId = packet.readString(messageIdSize);
+            
+            Packet<PacketType> retPacket;
+            if (m_dbHandler.deleteMessage(channelId, messageId))
+                retPacket.header.id = PacketType::Client_DeleteMessage_Success;
+            else
+                retPacket.header.id = PacketType::Client_DeleteMessage_Fail;
+
+            client->send(retPacket);
         }
         
         void handleEditMessage(clientConnection & client, Packet<PacketType>&packet)
         {
             SERVER_INFO("[{}]: Edit Message", client->getID());
-        }
 
+            uint32_t messageIdSize = packet.readInt();
+            std::string messageId = packet.readString(messageIdSize);
+            uint32_t contentSize = packet.readInt();
+            std::string content = packet.readString(contentSize);
+
+            Packet<PacketType> retPacket;
+            if (m_dbHandler.editMessage(messageId, content))
+                retPacket.header.id = PacketType::Client_DeleteMessage_Success;
+            else
+                retPacket.header.id = PacketType::Client_DeleteMessage_Fail;
+
+            client->send(retPacket);
+        }
 
     private:
         functionMap m_packetHandlers;

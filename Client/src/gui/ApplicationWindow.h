@@ -109,6 +109,32 @@ void showApplicationWindow(net::TCPClient& client)
 
                 ImGui::EndTabItem();
             }
+            if (ImGui::BeginTabItem("Create Channel"))
+            {
+                ImGui::InputText("Server id", createChannel_serverId, IM_ARRAYSIZE(createChannel_serverId));
+                ImGui::InputText("Channel name", createChannel_channelName, IM_ARRAYSIZE(createChannel_channelName));
+
+                if (ImGui::Button("Execute"))
+                {
+                    std::string serverId = stripWhitespace(createChannel_serverId, 64);
+                    std::string channelName = stripWhitespace(createChannel_channelName, 64);
+                    client.tryCreateChannel(serverId, channelName);
+                }
+
+                ImGui::EndTabItem();
+            }
+            if (ImGui::BeginTabItem("Delete Channel"))
+            {
+                ImGui::InputText("Channel id", deleteChannel_channelId, IM_ARRAYSIZE(deleteChannel_channelId));
+
+                if (ImGui::Button("Execute"))
+                {
+                    std::string channelId = stripWhitespace(deleteChannel_channelId, 64);
+                    client.tryDeleteChannel(channelId);
+                }
+
+                ImGui::EndTabItem();
+            }
             if (ImGui::BeginTabItem("Join Server"))
             {
                 ImGui::InputText("User id", joinServer_userId, IM_ARRAYSIZE(joinServer_userId));
@@ -133,32 +159,6 @@ void showApplicationWindow(net::TCPClient& client)
                     std::string userId = stripWhitespace(leaveServer_userId, 64);
                     std::string serverId = stripWhitespace(leaveServer_serverId, 64);
                     client.tryLeaveServer(userId, serverId);
-                }
-
-                ImGui::EndTabItem();
-            }
-            if (ImGui::BeginTabItem("Create Channel"))
-            {
-                ImGui::InputText("Server id", createChannel_serverId, IM_ARRAYSIZE(createChannel_serverId));
-                ImGui::InputText("Channel name", createChannel_channelName, IM_ARRAYSIZE(createChannel_channelName));
-
-                if (ImGui::Button("Execute"))
-                {
-                    std::string serverId = stripWhitespace(createChannel_serverId, 64);
-                    std::string channelName = stripWhitespace(createChannel_channelName, 64);
-                    client.tryCreateChannel(serverId, channelName);
-                }
-
-                ImGui::EndTabItem();
-            }
-            if (ImGui::BeginTabItem("Delete Channel"))
-            {
-                ImGui::InputText("Channel id", deleteChannel_channelId, IM_ARRAYSIZE(deleteChannel_channelId));
-
-                if (ImGui::Button("Execute"))
-                {
-                    std::string channelId = stripWhitespace(deleteChannel_channelId, 64);
-                    client.tryDeleteChannel(channelId);
                 }
 
                 ImGui::EndTabItem();

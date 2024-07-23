@@ -130,6 +130,30 @@ namespace net
             send(packet);
         }
 
+        void tryCreateChannel(const std::string& serverId, const std::string& channelName)
+        {
+            Packet<PacketType> packet;
+            packet.header.id = PacketType::Server_CreateChannel;
+
+            packet.writeInt((uint32_t)serverId.size());
+            packet.writeString(serverId);
+            packet.writeInt((uint32_t)channelName.size());
+            packet.writeString(channelName);
+
+            send(packet);
+        }
+
+        void tryDeleteChannel(const std::string& channelId)
+        {
+            Packet<PacketType> packet;
+            packet.header.id = PacketType::Server_DeleteChannel;
+
+            packet.writeInt((uint32_t)channelId.size());
+            packet.writeString(channelId);
+
+            send(packet);
+        }
+
         void tryJoinServer(const std::string& userId, const std::string& serverId)
         {
             Packet<PacketType> packet;
@@ -152,30 +176,6 @@ namespace net
             packet.writeString(userId);
             packet.writeInt((uint32_t)serverId.size());
             packet.writeString(serverId);
-
-            send(packet);
-        }
-
-        void tryCreateChannel(const std::string& serverId, const std::string& channelName)
-        {
-            Packet<PacketType> packet;
-            packet.header.id = PacketType::Server_CreateChannel;
-
-            packet.writeInt((uint32_t)serverId.size());
-            packet.writeString(serverId);
-            packet.writeInt((uint32_t)channelName.size());
-            packet.writeString(channelName);
-
-            send(packet);
-        }
-
-        void tryDeleteChannel(const std::string& channelId)
-        {
-            Packet<PacketType> packet;
-            packet.header.id = PacketType::Server_DeleteChannel;
-
-            packet.writeInt((uint32_t)channelId.size());
-            packet.writeString(channelId);
 
             send(packet);
         }
