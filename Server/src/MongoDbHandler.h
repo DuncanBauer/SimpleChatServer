@@ -75,22 +75,21 @@ public:
     //    "timestamp" : "timestamp"
     //}
 
-    void registerUser(const std::string& username, const std::string& password);
-    void deleteUser(const std::string& username);
+    bool registerUser(const std::string& username, const std::string& password);
+    bool deleteUser(const std::string& username);
     bool login(const std::string& username, const std::string& password);
-    void logout(const std::string& username);
+    bool logout(const std::string& username);
 
-    void createServer(const std::string& user, const std::string& serverName);
-    void deleteServer(std::string serverName);
-    void addChannelToServer();
-    void removeChannelFromServer();
-    void joinServer();
-    void leaveServer();
+    bool createServer(const std::string& user, const std::string& serverName);
+    bool deleteServer(std::string serverName);
+    bool addChannelToServer();
+    bool removeChannelFromServer();
+    bool joinServer();
+    bool leaveServer();
 
-
-    void sendMessage();
-    void editMessage();
-    void deleteMessage();
+    bool sendMessage();
+    bool editMessage();
+    bool deleteMessage();
 
 private:
     //mongocxx::instance m_instance{};

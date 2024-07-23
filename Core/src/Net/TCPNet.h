@@ -7,12 +7,11 @@ namespace net
 {
     enum class PacketType {
         // Packets starting with Server_ are packets being sent TO the server
-        Server_GetPing,
+        Server_Get_Ping,
 
         Server_Register,
         Server_Login,
         Server_Logout,
-        Server_ChangeDisplayName,
         
         Server_CreateServer,
         Server_DeleteServer,
@@ -26,8 +25,9 @@ namespace net
 
 
         // Packets starting with Client_ are packets being sent TO the client
-        Client_ClientConnected,
-        Client_ClientAccepted,
+        Client_Return_Ping,
+        Client_Connected,
+        Client_Accepted,
 
         Client_Register_Success,
         Client_Register_Fail,
@@ -35,8 +35,6 @@ namespace net
         Client_Login_Fail,
         Client_Logout_Success,
         Client_Logout_Fail,
-        Client_ChangeDisplayName_Success,
-        Client_ChangeDisplayName_Fail,
 
         Client_CreateServer_Success,
         Client_CreateServer_Fail,

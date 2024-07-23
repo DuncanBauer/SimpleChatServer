@@ -20,21 +20,12 @@ namespace net
             : m_owner(parent), m_ioContext(ioContext), m_socket(std::move(socket)), m_incomingPackets(incomingPackets) {
 
             // Construct validation check
-            if (m_owner == Owner::Server)
-            {
-                // Connection is Server->Client
-                // Construct random data to send to client for validation
-                m_handshakeOut = uint64_t(std::chrono::system_clock::now().time_since_epoch().count());
-
-                // Pre-calculate handshake validation value
-                m_handshakeCheck = scramble(m_handshakeOut);
-            }
-            else
-            {
-                // Connection is Client->Server, so nothing to define
-                m_handshakeIn = 0;
-                m_handshakeOut = 0;
-            }
+            //if (m_owner == Owner::Server)
+            //{
+            //}
+            //else
+            //{
+            //}
         }
 
         ~TCPConnection()
@@ -258,74 +249,6 @@ namespace net
                 });
         }
 
-        uint64_t scramble(uint64_t input)
-        {
-            uint64_t out = input ^ 0xDEADBEEFC0DECAFE;
-            out = (out & 0xF0F0F0F0F0F0F0) >> 4 | (out & 0x0F0F0F0F0F0F0F) << 4;
-            return out ^ 0xC0DEFACE12345678;
-        }
-
-        // Validates incoming connection
-        void readValidation(TCPServerInterface<T>* server = nullptr)
-        {
-            asio::async_read(m_socket, asio::buffer(&m_handshakeIn, sizeof(uint64_t)),
-                [this, server](std::error_code ec, std::size_t length) {
-                    if (!ec)
-                    {
-                        if (m_owner == Owner::Server)
-                        {
-                            // Connection is a server, check response from client
-                            if (m_handshakeIn == m_handshakeCheck) {
-                                // Client has successfully validated, allow it to connect
-                                spdlog::info("Client validated");
-                                server->onClientValidated(this->shared_from_this());
-
-                                // Wait for data
-                                readHeader();
-                            }
-                            else
-                            {
-                                // Client gave invalid data, close connection
-                                spdlog::warn("Client failed validation");
-                                m_socket.close();
-                            }
-                        }
-                        else
-                        {
-                            // Connection is a client, solve the puzzle
-                            m_handshakeOut = scramble(m_handshakeIn);
-
-                            // Write results
-                            writeValidation();
-                        }
-                    }
-                    else
-                    {
-                        // Some error occurred
-                        spdlog::warn("Client disconnected (readValidation)");
-                        spdlog::warn(ec.message());
-                        m_socket.close();
-                    }
-                });
-        }
-
-        // Validates outgoing connection
-        void writeValidation()
-        {
-            asio::async_write(m_socket, asio::buffer(&m_handshakeOut, sizeof(uint64_t)),
-                [this](std::error_code ec, std::size_t length)
-                {
-                    if (!ec) {
-                        // Theres no error sending validation data, wait for client response
-                        if (m_owner == Owner::Client)
-                            readHeader();
-                        else
-                            // If there's an error sending validation data, close the socket
-                            m_socket.close();
-                    }
-                });
-        }
-
     private:
         uint32_t m_id = 0;
         Owner m_owner = Owner::Server;
@@ -344,13 +267,5 @@ namespace net
 
         // Holds messages to be sent to the remote connection
         ThreadSafeQueue<Packet<T>> m_outgoingPackets;
-
-        // Handshake Validation            
-        uint64_t m_handshakeOut = 0;
-        uint64_t m_handshakeIn = 0;
-        uint64_t m_handshakeCheck = 0;
-
-        bool m_validHandshake = false;
-        bool m_connectionEstablished = false;
     };
 }

@@ -1,10 +1,9 @@
 #include <memory>
 #include <iostream>
 
-#include <logging/Logger.h>
-#include <net/TCPClient.h>
-#include "ChatWindow.h"
-#include "Global.h"
+#include "logging/Logger.h"
+#include "gui/LoginWindow.h"
+#include "gui/ApplicationWindow.h"
 
 // Dear ImGui: standalone example application for SDL3 + OpenGL
 // (SDL is a cross-platform general purpose library for handling windows, inputs, OpenGL/Vulkan/Metal graphics context creation, etc.)
@@ -122,77 +121,53 @@ int main(int, char**)
     {
         // Initialize logging
         Logger::init();
+
+        std::string host = "127.0.0.1";
+        net::TCPClient client;
         client.connect(host, 60000);
 
         // Main loop
-        bool done = false;
+        bool b_done = false;
+
 #ifdef __EMSCRIPTEN__
         // For an Emscripten build we are disabling file-system access, so let's not attempt to do a fopen() of the imgui.ini file.
         // You may manually call LoadIniSettingsFromMemory() to load settings from your own storage.
         io.IniFilename = nullptr;
         EMSCRIPTEN_MAINLOOP_BEGIN
 #else
-        while (!done)
+        while (!b_done)
 #endif
         {
-            bool key[3] = { false, false, false };
-            bool old_key[3] = { false, false, false };
+            //bool key[3] = { false, false, false };
+            //bool old_key[3] = { false, false, false };
 
-            if (GetForegroundWindow() == GetConsoleWindow())
-            {
-                key[0] = GetAsyncKeyState('1') & 0x8000;
-                key[1] = GetAsyncKeyState('2') & 0x8000;
-                key[2] = GetAsyncKeyState('3') & 0x8000;
-            }
+            //if (GetForegroundWindow() == GetConsoleWindow())
+            //{
+            //    key[0] = GetAsyncKeyState('1') & 0x8000;
+            //    key[1] = GetAsyncKeyState('2') & 0x8000;
+            //    key[2] = GetAsyncKeyState('3') & 0x8000;
+            //}
 
-            if (key[0] && !old_key[0]) client.pingServer();
-            if (key[2] && !old_key[2]) done = true;
+            //if (key[0] && !old_key[0]) client.pingServer();
+            //if (key[2] && !old_key[2]) done = true;
 
-            for (int i = 0; i < 3; i++) old_key[i] = key[i];
+            //for (int i = 0; i < 3; i++) old_key[i] = key[i];
 
+            // Handle packets
             if (client.isConnected())
-            {
-                if (!client.getIncomingPackets().empty())
-                {
-                    auto packet = client.getIncomingPackets().pop_front().packet;
-                    switch (packet.header.id)
-                    {
-                    case net::PacketType::Server_GetPing:
-                    {
-                        std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
-                        auto now_ms = std::chrono::time_point_cast<std::chrono::milliseconds>(now);
-                        auto now_se = now_ms.time_since_epoch();
-                        long long now_value = now_se.count();
-
-                        long long then = packet.readLong();
-                        std::chrono::milliseconds then_ms(then);
-                        std::chrono::time_point<std::chrono::system_clock> then_sc(then_ms);
-                        
-                        CLIENT_INFO("Ping: {}", std::chrono::duration<double>(now_value - then_sc).count());
-                        break;
-                    }
-                    default: break;
-                    }
-                }
-            }
+                client.update(-1, true);
             else
-            {
-                done = true;
-            }
+                b_done = true;
 
-            // Poll and handle events (inputs, window resize, etc.)
-            // You can read the io.WantCaptureMouse, io.WantCaptureKeyboard flags to tell if dear imgui wants to use your inputs.
-            // - When io.WantCaptureMouse is true, do not dispatch mouse input data to your main application, or clear/overwrite your copy of the mouse data.
-            // - When io.WantCaptureKeyboard is true, do not dispatch keyboard input data to your main application, or clear/overwrite your copy of the keyboard data.
-            // Generally you may always pass all inputs to dear imgui, and hide them from your application based on those two flags.
+            // Poll events
             SDL_Event event;
             while (SDL_PollEvent(&event))
             {
                 ImGui_ImplSDL3_ProcessEvent(&event);
                 if (event.type == SDL_EVENT_QUIT)
-                    done = true;
+                    b_done = true;
                 if (event.type == SDL_EVENT_WINDOW_CLOSE_REQUESTED && event.window.windowID == SDL_GetWindowID(window))
-                    done = true;
+                    b_done = true;
             }
 
             // Start the Dear ImGui frame
@@ -200,7 +175,17 @@ int main(int, char**)
             ImGui_ImplSDL3_NewFrame();
             ImGui::NewFrame();
 
-            showChatWindow(io, clear_color);
+            static bool b_showDemoWindow = true;
+
+            if (client.getStatus().loggedIn)
+            //if (b_showLoginWindow)
+                showApplicationWindow(client);
+            else
+            //if(b_showApplicationWindow)
+                showLoginWindow(client);
+
+            //if (b_showDemoWindow)
+            //    ImGui::ShowDemoWindow(&b_showDemoWindow);
 
             // Rendering
             ImGui::Render();
@@ -214,7 +199,6 @@ int main(int, char**)
     catch (std::exception& e)
     {
         CLIENT_ERROR("{}", e.what());
-        //std::cerr << e.what() << std::endl;
     }
 #ifdef __EMSCRIPTEN__
     EMSCRIPTEN_MAINLOOP_END;

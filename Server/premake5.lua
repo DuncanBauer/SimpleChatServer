@@ -18,6 +18,7 @@ project "Server"
 
 	includedirs
 	{
+		"src",
 		"%{IncludeDir.Core}",
 		"%{IncludeDir.ASIO}",
 		"%{IncludeDir.Cryptopp}",
@@ -30,11 +31,6 @@ project "Server"
 
 	links
 	{
-		"%{LinkDir.Cryptopp}",
-		"%{LinkDir.MongoC}",
-		"%{LinkDir.MongoCXX}",
-		"%{LinkDir.Bson}",
-		"%{LinkDir.BsonCXX}"
 	}
 
 	filter "system:windows"
@@ -53,6 +49,15 @@ project "Server"
 			"DEBUG",
 			"STATIC_CONCPP"
 		}
+		links
+		{
+			"%{LinkDir.Cryptoppd}",
+			
+			"%{LinkDir.MongoCd}",
+			"%{LinkDir.MongoCXXd}",
+			"%{LinkDir.Bsond}",
+			"%{LinkDir.BsonCXXd}"
+		}
 		runtime "Debug"
 		symbols "on"
 
@@ -61,6 +66,15 @@ project "Server"
 		{
 			"NDEBUG",
 			"STATIC_CONCPP"
+		}
+		links
+		{
+			"%{LinkDir.Cryptopp}",
+			
+			"%{LinkDir.MongoC}",
+			"%{LinkDir.MongoCXX}",
+			"%{LinkDir.Bson}",
+			"%{LinkDir.BsonCXX}"
 		}
 		runtime "Release"
 		optimize "on"

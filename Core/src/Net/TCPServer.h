@@ -1,10 +1,8 @@
 #pragma once
 
-#include "Global.h"
-
 #include "TCPServerInterface.h"
 #include "TCPConnection.h"
-#include "TCPNet.h"
+#include "MongoDbHandler.h"
 
 namespace net
 {
@@ -18,17 +16,10 @@ namespace net
         TCPServer(uint16_t port) : TCPServerInterface<PacketType>(port)
         {
             //Register Packet Handlers
-            m_packetHandlers[PacketType::Server_GetPing] = [this](clientConnection& client, Packet<PacketType>& packet) {
-                this->handleGetPing(client, packet);
-            };
-            m_packetHandlers[PacketType::Server_Register] = [this](clientConnection& client, Packet<PacketType>& packet) {
-                this->handleRegister(client, packet);
-            };
-            m_packetHandlers[PacketType::Server_Login] = [this](clientConnection& client, Packet<PacketType>& packet) {
-                this->handleLogin(client, packet);
-            };
-            //m_packetHandlers[PacketType::Server_Logout] = ;
-            //m_packetHandlers[PacketType::Server_ChangeDisplayName] = ;
+            m_packetHandlers[PacketType::Server_Get_Ping] = [this](clientConnection& client, Packet<PacketType>& packet) { this->handleGetPing(client, packet); };
+            m_packetHandlers[PacketType::Server_Register] = [this](clientConnection& client, Packet<PacketType>& packet) { this->handleRegister(client, packet); };
+            m_packetHandlers[PacketType::Server_Login]    = [this](clientConnection& client, Packet<PacketType>& packet) { this->handleLogin(client, packet); };
+            m_packetHandlers[PacketType::Server_Logout]   = [this](clientConnection& client, Packet<PacketType>& packet) { this->handleLogout(client, packet); };
 
             //m_packetHandlers[PacketType::Server_CreateServer] = ;
             //m_packetHandlers[PacketType::Server_DeleteServer] = ;
@@ -49,7 +40,7 @@ namespace net
         {
             // Client passed validation, so send them a packet to inform them they can communicate
             Packet<PacketType> packet;
-            packet.header.id = PacketType::Client_ClientConnected;
+            packet.header.id = PacketType::Client_Connected;
             client->send(packet);
             return true;
         }
@@ -65,7 +56,7 @@ namespace net
         {
             // Client passed validation, so send them a packet to inform them they can communicate
             Packet<PacketType> packet;
-            packet.header.id = PacketType::Client_ClientAccepted;
+            packet.header.id = PacketType::Client_Accepted;
             client->send(packet);
         }
 
@@ -77,7 +68,9 @@ namespace net
         void handleGetPing(clientConnection& client, Packet<PacketType>& packet)
         {
             spdlog::info("[{}]: Server Ping", client->getID());
-            client->send(packet);
+            Packet<PacketType> retPacket;
+            retPacket.header.id = PacketType::Client_Return_Ping;
+            client->send(retPacket);
         }
 
         void handleRegister(clientConnection& client, Packet<PacketType>& packet)
@@ -94,7 +87,14 @@ namespace net
             passwordSize = packet.readInt();
             password = packet.readString(passwordSize);
 
-            handler.registerUser(username, password);
+            bool success = m_dbHandler.registerUser(username, password);
+
+            Packet<PacketType> retPacket;
+            if (success)
+                retPacket.header.id = PacketType::Client_Register_Success;
+            else
+                retPacket.header.id = PacketType::Client_Register_Fail;
+            client->send(retPacket);
         }
 
         void handleLogin(clientConnection& client, Packet<PacketType>& packet)
@@ -111,10 +111,38 @@ namespace net
             passwordSize = packet.readInt();
             password = packet.readString(passwordSize);
 
-            handler.login(username, password);
+            bool success = m_dbHandler.login(username, password);
+
+            Packet<PacketType> retPacket;
+            if (success)
+                retPacket.header.id = PacketType::Client_Login_Success;
+            else
+                retPacket.header.id = PacketType::Client_Login_Fail;
+            client->send(retPacket);
+        }
+
+        void handleLogout(clientConnection& client, Packet<PacketType>& packet)
+        {
+            spdlog::info("[{}]: Logout", client->getID());
+
+            uint32_t usernameSize = 0;
+            std::string username;
+
+            usernameSize = packet.readInt();
+            username = packet.readString(usernameSize);
+
+            bool success = m_dbHandler.logout(username);
+
+            Packet<PacketType> retPacket;
+            if (success)
+                retPacket.header.id = PacketType::Client_Logout_Success;
+            else
+                retPacket.header.id = PacketType::Client_Logout_Fail;
+            client->send(retPacket);
         }
 
     private:
         functionMap m_packetHandlers;
+        MongoDbHandler m_dbHandler;
     };
 }

@@ -27,6 +27,7 @@ project "Client"
 
 	includedirs
 	{
+		"src",
 		"%{IncludeDir.Core}",
 		"%{IncludeDir.ASIO}",
 		"%{IncludeDir.spdlog}",

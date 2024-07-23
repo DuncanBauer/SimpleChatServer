@@ -57,7 +57,7 @@ namespace net
                 // ...disconnect from server gracefully
                 m_connection->disconnect();
 
-            // Either way, we're also done with the asio context...                
+            // Either way, we're also done with the asio context...
             m_ioContext.stop();
 
             // ...and its thread
@@ -89,6 +89,32 @@ namespace net
         {
             return m_incomingPackets;
         }
+
+        void update(size_t maxPackets = -1, bool wait = false)
+        {
+            if (wait)
+            {
+                m_incomingPackets.wait();
+
+                // Process messages up to maxPackets
+                size_t packetCount = 0;
+                while (packetCount < maxPackets && !m_incomingPackets.empty())
+                {
+                    // Grab first packet
+                    auto packet = m_incomingPackets.pop_front();
+
+                    // Handle packet
+                    onMessage(packet.packet);
+
+                    packetCount++;
+                }
+            }
+        }
+
+    protected:
+        // Called when a message is received
+        virtual void onMessage(Packet<PacketType>& packet)
+        {}
 
     protected:
         // ASIO context for async IO

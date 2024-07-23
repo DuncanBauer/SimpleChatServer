@@ -221,6 +221,7 @@ namespace net
 
         // ThreadSafeQueue for incoming packets
         ThreadSafeQueue<OwnedPacket<T>> m_incomingPackets;
+
         // Queue for connections
         std::deque<std::shared_ptr<TCPConnection<T>>> m_connections;
 
