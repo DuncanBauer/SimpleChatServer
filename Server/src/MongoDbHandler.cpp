@@ -389,32 +389,43 @@ bool MongoDbHandler::deleteChannel(std::string serverName, std::string channelNa
     return true;
 }
 
-bool MongoDbHandler::sendMessage(const std::string& username, const std::string& server, const std::string& channel, const std::string& message)
+bool MongoDbHandler::sendMessage(const std::string& authorId, const std::string& channelId, const std::string& content)
 {
     SERVER_INFO("MongoDbHandle::sendMessage");
-    createMessageDoc();
-    addRemoveMessageFromChannel();
+    
+    std::string messageId;
+    if(!createMessageDoc(channelId, authorId, content, messageId))
+        return false;
+    
+    if (!addRemoveMessageFromChannel(channelId, messageId, "$push"))
+        return false;
+
     return true;
 }
 
-bool MongoDbHandler::deleteMessage(const std::string& id)
+bool MongoDbHandler::deleteMessage(const std::string& channelId, const std::string& messageId)
 {
     SERVER_INFO("MongoDbHandle::deleteMessage");
-    deleteMessageDoc();
-    addRemoveMessageFromChannel();
+    if (!deleteMessageDoc(messageId))
+        return false;
+    
+    if (!addRemoveMessageFromChannel(channelId, messageId, "$pull"))
+        return false;
+    
     return true;
 }
 
-bool MongoDbHandler::editMessage(const std::string& id, const std::string& message)
+bool MongoDbHandler::editMessage(const std::string& messageId, const std::string& message)
 {
     SERVER_INFO("MongoDbHandle::editMessage");
     try
     {
-        // Define document
+        // Prepare filter
         auto filter = bsoncxx::builder::stream::document{}
-            << "_id" << id
+            << "_id" << messageId
             << bsoncxx::builder::stream::finalize;
         
+        // Prepare update
         auto update = bsoncxx::builder::stream::document{}
             << "$set"
             << bsoncxx::builder::stream::open_document
@@ -426,10 +437,11 @@ bool MongoDbHandler::editMessage(const std::string& id, const std::string& messa
         // Perform insertion
         if (!updateOneWithRetry(m_messageCollection, filter.view(), update.view()))
         {
-            SERVER_INFO("Message document could not be created");
+            SERVER_INFO("Message document could not be edited");
             return false;
         }
 
+        SERVER_INFO("Message doc successfully edited");
         return true;
     }
     catch (std::exception& e)
@@ -597,7 +609,7 @@ bool MongoDbHandler::deleteChannelDocs(const std::string& serverId)
     }
 }
 
-bool MongoDbHandler::createMessageDoc(const std::string& channelId, const std::string& authorId, const std::string& content)
+bool MongoDbHandler::createMessageDoc(const std::string& channelId, const std::string& authorId, const std::string& content, std::string& messageId)
 {
     SERVER_INFO("MongoDbHandle::createMessageDoc");
     try
@@ -606,18 +618,20 @@ bool MongoDbHandler::createMessageDoc(const std::string& channelId, const std::s
         auto newDoc = bsoncxx::builder::stream::document{}
             << "channel_id" << channelId
             << "author" << authorId
-            << "context" << content
+            << "content" << content
             << "created_at" << std::to_string(getSecondsSinceEpoch())
             << bsoncxx::builder::stream::finalize;
 
         // Perform insertion
-        if (!insertOneWithRetry(m_channelCollection, newDoc.view()))
+        insertOneResult result = insertOneWithRetry(m_channelCollection, newDoc.view());
+        if (!result)
         {
             SERVER_INFO("Failed to create message doc.");
             return false;
         }
 
         SERVER_INFO("Message doc successfully created");
+        messageId = result->inserted_id().get_oid().value.to_string();
         return true;
     }
     catch (std::exception& e)
