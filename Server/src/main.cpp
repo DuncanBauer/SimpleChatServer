@@ -23,8 +23,8 @@ int main()
 
         server.getDbHandler().registerUser("duncan", "password");
         server.getDbHandler().createServer("duncan", "duncan's server");
-        server.getDbHandler().deleteServer("duncan's server");
-        server.getDbHandler().deleteUser("duncan");
+        //server.getDbHandler().deleteServer("duncan's server");
+        //server.getDbHandler().deleteUser("duncan");
 
         while (1)
         {

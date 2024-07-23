@@ -85,7 +85,7 @@ public:
                                      int max_retries = 3, int retry_interval_ms = 1000);
     insertOneResult insertOneWithRetry(mongocxx::collection& collection, const bsoncxx::document::view& document,
                                        int max_retries = 3, int retry_interval_ms = 1000);
-    insertManyResult insertManyWithRetry(mongocxx::collection& collection, const bsoncxx::document::view& documents,
+    insertManyResult insertManyWithRetry(mongocxx::collection& collection, const std::vector<bsoncxx::document::view>& documents,
                                          int max_retries = 3, int retry_interval_ms = 1000);
     updateResult updateOneWithRetry(mongocxx::collection& collection, const bsoncxx::document::view& filter, const bsoncxx::document::view& update,
                                     int max_retries = 3, int retry_interval_ms = 1000);
@@ -122,6 +122,10 @@ public:
     //   return if fail
     // Delete server
     bool deleteServer(std::string serverName);
+
+    bool addServerToUser(std::string username, std::string serverName);
+
+    bool removeServerFromUser(std::string username, std::string serverName);
 
     // Find server
     //   return if fail
