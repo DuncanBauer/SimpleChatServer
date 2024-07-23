@@ -20,14 +20,32 @@ namespace net
     public:
         TCPClient()
         {
-            m_packetHandlers[PacketType::Client_Return_Ping]      = [this](Packet<PacketType>& packet) { this->handleReturnPing(packet); };
-            m_packetHandlers[PacketType::Client_Connected]        = [this](Packet<PacketType>& packet) { this->handleConnected(packet); };
-            m_packetHandlers[PacketType::Client_Register_Success] = [this](Packet<PacketType>& packet) { this->handleRegisterSuccess(packet); };
-            m_packetHandlers[PacketType::Client_Register_Fail]    = [this](Packet<PacketType>& packet) { this->handleRegisterFail(packet); };
-            m_packetHandlers[PacketType::Client_Login_Success]    = [this](Packet<PacketType>& packet) { this->handleLoginSuccess(packet); };
-            m_packetHandlers[PacketType::Client_Login_Fail]       = [this](Packet<PacketType>& packet) { this->handleLoginFail(packet); };
-            m_packetHandlers[PacketType::Client_Logout_Success]   = [this](Packet<PacketType>& packet) { this->handleLogoutSuccess(packet); };
-            m_packetHandlers[PacketType::Client_Logout_Fail]      = [this](Packet<PacketType>& packet) { this->handleLogoutFail(packet); };
+            m_packetHandlers[PacketType::Client_Return_Ping]            = [this](Packet<PacketType>& packet) { this->handleReturnPing(packet); };
+            m_packetHandlers[PacketType::Client_Connected]              = [this](Packet<PacketType>& packet) { this->handleConnected(packet); };
+            m_packetHandlers[PacketType::Client_Register_Success]       = [this](Packet<PacketType>& packet) { this->handleRegisterSuccess(packet); };
+            m_packetHandlers[PacketType::Client_Register_Fail]          = [this](Packet<PacketType>& packet) { this->handleRegisterFail(packet); };
+            m_packetHandlers[PacketType::Client_Login_Success]          = [this](Packet<PacketType>& packet) { this->handleLoginSuccess(packet); };
+            m_packetHandlers[PacketType::Client_Login_Fail]             = [this](Packet<PacketType>& packet) { this->handleLoginFail(packet); };
+            m_packetHandlers[PacketType::Client_Logout_Success]         = [this](Packet<PacketType>& packet) { this->handleLogoutSuccess(packet); };
+            m_packetHandlers[PacketType::Client_Logout_Fail]            = [this](Packet<PacketType>& packet) { this->handleLogoutFail(packet); };
+            m_packetHandlers[PacketType::Client_CreateServer_Success]   = [this](Packet<PacketType>& packet) { this->handleCreateServerSuccess(packet); };
+            m_packetHandlers[PacketType::Client_CreateServer_Fail]      = [this](Packet<PacketType>& packet) { this->handleCreateServerFail(packet); };
+            m_packetHandlers[PacketType::Client_DeleteServer_Success]   = [this](Packet<PacketType>& packet) { this->handleDeleteServerSuccess(packet); };
+            m_packetHandlers[PacketType::Client_DeleteServer_Fail]      = [this](Packet<PacketType>& packet) { this->handleDeleteServerFail(packet); };
+            m_packetHandlers[PacketType::Client_CreateChannel_Success]  = [this](Packet<PacketType>& packet) { this->handleCreateChannelSuccess(packet); };
+            m_packetHandlers[PacketType::Client_CreateChannel_Fail]     = [this](Packet<PacketType>& packet) { this->handleCreateChannelFail(packet); };
+            m_packetHandlers[PacketType::Client_DeleteChannel_Success]  = [this](Packet<PacketType>& packet) { this->handleDeleteChannelSuccess(packet); };
+            m_packetHandlers[PacketType::Client_DeleteChannel_Fail]     = [this](Packet<PacketType>& packet) { this->handleDeleteChannelFail(packet); };
+            m_packetHandlers[PacketType::Client_JoinServer_Success]     = [this](Packet<PacketType>& packet) { this->handleJoinServerSuccess(packet); };
+            m_packetHandlers[PacketType::Client_JoinServer_Fail]        = [this](Packet<PacketType>& packet) { this->handleJoinServerFail(packet); };
+            m_packetHandlers[PacketType::Client_LeaveServer_Success]    = [this](Packet<PacketType>& packet) { this->handleLeaveServerSuccess(packet); };
+            m_packetHandlers[PacketType::Client_LeaveServer_Fail]       = [this](Packet<PacketType>& packet) { this->handleLeaveServerFail(packet); };
+            m_packetHandlers[PacketType::Client_SendMessage_Success]    = [this](Packet<PacketType>& packet) { this->handleSendMessageSuccess(packet); };
+            m_packetHandlers[PacketType::Client_SendMessage_Fail]       = [this](Packet<PacketType>& packet) { this->handleSendMessageFail(packet); };
+            m_packetHandlers[PacketType::Client_DeleteMessage_Success]  = [this](Packet<PacketType>& packet) { this->handleDeleteMessageSuccess(packet); };
+            m_packetHandlers[PacketType::Client_DeleteMessage_Fail]     = [this](Packet<PacketType>& packet) { this->handleDeleteMessageFail(packet); };
+            m_packetHandlers[PacketType::Client_EditMessage_Success]    = [this](Packet<PacketType>& packet) { this->handleEditMessageSuccess(packet); };
+            m_packetHandlers[PacketType::Client_EditMessage_Fail]       = [this](Packet<PacketType>& packet) { this->handleEditMessageFail(packet); };
         }
 
         ~TCPClient()
@@ -267,6 +285,96 @@ namespace net
         void handleLogoutFail(Packet<PacketType>& packet)
         {
             CLIENT_INFO("Login Fail!");
+        }
+
+        void handleCreateServerSuccess(Packet<PacketType>& packet)
+        {
+            CLIENT_INFO("Create Server Success!");
+        }
+        
+        void handleCreateServerFail(Packet<PacketType>& packet)
+        {
+            CLIENT_INFO("Create Server Fail!");
+        }
+        
+        void handleDeleteServerSuccess(Packet<PacketType>& packet)
+        {
+            CLIENT_INFO("Delete Server Success!");
+        }
+        
+        void handleDeleteServerFail(Packet<PacketType>& packet)
+        {
+            CLIENT_INFO("Delete Server Fail!");
+        }
+        
+        void handleCreateChannelSuccess(Packet<PacketType>& packet)
+        {
+            CLIENT_INFO("Create Channel Success!");
+        }
+        
+        void handleCreateChannelFail(Packet<PacketType>& packet)
+        {
+            CLIENT_INFO("Create Channel Fail!");
+        }
+        
+        void handleDeleteChannelSuccess(Packet<PacketType>& packet)
+        {
+            CLIENT_INFO("Delete Channel Success!");
+        }
+        
+        void handleDeleteChannelFail(Packet<PacketType>& packet)
+        {
+            CLIENT_INFO("Delete Channel Fail!");
+        }
+        
+        void handleJoinServerSuccess(Packet<PacketType>& packet)
+        {
+            CLIENT_INFO("Join Server Success!");
+        }
+        
+        void handleJoinServerFail(Packet<PacketType>& packet)
+        {
+            CLIENT_INFO("Join Server Fail!");
+        }
+        
+        void handleLeaveServerSuccess(Packet<PacketType>& packet)
+        {
+            CLIENT_INFO("Leave Server Success!");
+        }
+        
+        void handleLeaveServerFail(Packet<PacketType>& packet)
+        {
+            CLIENT_INFO("Leave Server Fail!");
+        }
+        
+        void handleSendMessageSuccess(Packet<PacketType>& packet)
+        {
+            CLIENT_INFO("Send Message Success!");
+        }
+        
+        void handleSendMessageFail(Packet<PacketType>& packet)
+        {
+            CLIENT_INFO("Send Message Fail!");
+        }
+        
+        void handleDeleteMessageSuccess(Packet<PacketType>& packet)
+        {
+            CLIENT_INFO("Delete Message Success!");
+        }
+        
+        void handleDeleteMessageFail(Packet<PacketType>& packet)
+        {
+            CLIENT_INFO("Delete Message Fail!");
+        }
+        
+        void handleEditMessageSuccess(Packet<PacketType>& packet)
+        {
+            CLIENT_INFO("Edit Message Success!");
+        }
+        
+        void handleEditMessageFail(Packet<PacketType>& packet)
+        {
+            CLIENT_INFO("Edit Message Fail!");
         }
 
     private:

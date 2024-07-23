@@ -16,20 +16,19 @@ namespace net
         TCPServer(uint16_t port) : TCPServerInterface<PacketType>(port)
         {
             //Register Packet Handlers
-            m_packetHandlers[PacketType::Server_Get_Ping] = [this](clientConnection& client, Packet<PacketType>& packet) { this->handleGetPing(client, packet); };
-            m_packetHandlers[PacketType::Server_Register] = [this](clientConnection& client, Packet<PacketType>& packet) { this->handleRegister(client, packet); };
-            m_packetHandlers[PacketType::Server_Login]    = [this](clientConnection& client, Packet<PacketType>& packet) { this->handleLogin(client, packet); };
-            m_packetHandlers[PacketType::Server_Logout]   = [this](clientConnection& client, Packet<PacketType>& packet) { this->handleLogout(client, packet); };
-
-            //m_packetHandlers[PacketType::Server_CreateServer] = ;
-            //m_packetHandlers[PacketType::Server_DeleteServer] = ;
-
-            //m_packetHandlers[PacketType::Server_AddChannelToServer] = ;
-            //m_packetHandlers[PacketType::Server_RemoveChannelFromServer] = ;
-            //m_packetHandlers[PacketType::Server_JoinServer] = ;
-            //m_packetHandlers[PacketType::Server_LeaveServer] = ;
-            //m_packetHandlers[PacketType::Server_JoinChannel] = ;
-            //m_packetHandlers[PacketType::Server_LeaveChannel] = ;
+            m_packetHandlers[PacketType::Server_Get_Ping]       = [this](clientConnection& client, Packet<PacketType>& packet) { this->handleGetPing(client, packet); };
+            m_packetHandlers[PacketType::Server_Register]       = [this](clientConnection& client, Packet<PacketType>& packet) { this->handleRegister(client, packet); };
+            m_packetHandlers[PacketType::Server_Login]          = [this](clientConnection& client, Packet<PacketType>& packet) { this->handleLogin(client, packet); };
+            m_packetHandlers[PacketType::Server_Logout]         = [this](clientConnection& client, Packet<PacketType>& packet) { this->handleLogout(client, packet); };
+            m_packetHandlers[PacketType::Server_CreateServer]   = [this](clientConnection& client, Packet<PacketType>& packet) { this->handleCreateServer(client, packet); };
+            m_packetHandlers[PacketType::Server_DeleteServer]   = [this](clientConnection& client, Packet<PacketType>& packet) { this->handleDeleteServer(client, packet); };
+            m_packetHandlers[PacketType::Server_CreateChannel]  = [this](clientConnection& client, Packet<PacketType>& packet) { this->handleCreateChannel(client, packet); };
+            m_packetHandlers[PacketType::Server_DeleteChannel]  = [this](clientConnection& client, Packet<PacketType>& packet) { this->handleDeleteChannel(client, packet); };
+            m_packetHandlers[PacketType::Server_JoinServer]     = [this](clientConnection& client, Packet<PacketType>& packet) { this->handleJoinServer(client, packet); };
+            m_packetHandlers[PacketType::Server_LeaveServer]    = [this](clientConnection& client, Packet<PacketType>& packet) { this->handleLeaveServer(client, packet); };
+            m_packetHandlers[PacketType::Server_SendMessage]    = [this](clientConnection& client, Packet<PacketType>& packet) { this->handleSendMessage(client, packet); };
+            m_packetHandlers[PacketType::Server_DeleteMessage]  = [this](clientConnection& client, Packet<PacketType>& packet) { this->handleDeleteMessage(client, packet); };
+            m_packetHandlers[PacketType::Server_EditMessage]    = [this](clientConnection& client, Packet<PacketType>& packet) { this->handleEditMessage(client, packet); };
         }
 
         ~TCPServer()
