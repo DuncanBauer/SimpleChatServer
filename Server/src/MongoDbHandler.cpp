@@ -5,230 +5,6 @@
 #include "MongoDbHandler.h"
 #include "Util.h"
 
-findOneResult MongoDbHandler::findOneWithRetry(mongocxx::collection& collection, const bsoncxx::document::view& filter,
-                                            int max_retries, int retry_interval_ms)
-{
-    int attempt = 0;
-    findOneResult result;
-    while (attempt < max_retries)
-    {
-        try
-        {
-            result = collection.find_one(filter);
-            SERVER_INFO("Document inserted successfully.");
-            if (result) break;
-        }
-        catch (const std::exception& e)
-        {
-            SERVER_ERROR("Insert attempt {} failed: {}", (attempt + 1), e.what());
-            if (attempt + 1 >= max_retries)
-            {
-                SERVER_ERROR("Maximum retries reached. Giving up.");
-                throw e;
-            }
-            std::this_thread::sleep_for(std::chrono::milliseconds(retry_interval_ms));
-            attempt++;
-        }
-    }
-    return result;
-}
-
-findManyResult MongoDbHandler::findManyWithRetry(mongocxx::collection& collection, const bsoncxx::document::view& filter,
-                                             int max_retries, int retry_interval_ms)
-{
-    int attempt = 0;
-    findManyResult result;
-    while (attempt < max_retries)
-    {
-        try
-        {
-            result = collection.find(filter);
-            SERVER_INFO("Documents inserted successfully.");
-            if (result) break;
-        }
-        catch (const std::exception& e)
-        {
-            SERVER_ERROR("Insert attempt {} failed: {}", (attempt + 1), e.what());
-            if (attempt + 1 >= max_retries)
-            {
-                SERVER_ERROR("Maximum retries reached. Giving up.");
-                throw e;
-            }
-            std::this_thread::sleep_for(std::chrono::milliseconds(retry_interval_ms));
-            attempt++;
-        }
-    }
-    return result;
-}
-
-insertOneResult MongoDbHandler::insertOneWithRetry(mongocxx::collection& collection, const bsoncxx::document::view& document,
-                                                int max_retries, int retry_interval_ms)
-{
-    int attempt = 0;
-    insertOneResult result;
-    while (attempt < max_retries)
-    {
-        try
-        {
-            result = collection.insert_one(document);
-            SERVER_INFO("Document inserted successfully.");
-            if (result) break;
-        }
-        catch (const std::exception& e)
-        {
-            SERVER_ERROR("Insert attempt {} failed: {}", (attempt + 1), e.what());
-            if (attempt + 1 >= max_retries)
-            {
-                SERVER_ERROR("Maximum retries reached. Giving up.");
-                throw e;
-            }
-            std::this_thread::sleep_for(std::chrono::milliseconds(retry_interval_ms));
-            attempt++;
-        }
-    }
-    return result;
-}
-
-insertManyResult MongoDbHandler::insertManyWithRetry(mongocxx::collection& collection, const std::vector<bsoncxx::document::view>& documents,
-                                                     int max_retries, int retry_interval_ms)
-{
-    int attempt = 0;
-    insertManyResult result;
-    while (attempt < max_retries)
-    {
-        try
-        {
-            result = collection.insert_many(documents);
-            SERVER_INFO("Documents inserted successfully.");
-            if (result) break;
-        }
-        catch (const std::exception& e)
-        {
-            SERVER_ERROR("Insert attempt {} failed: {}", (attempt + 1), e.what());
-            if (attempt + 1 >= max_retries)
-            {
-                SERVER_ERROR("Maximum retries reached. Giving up.");
-                throw e;
-            }
-            std::this_thread::sleep_for(std::chrono::milliseconds(retry_interval_ms));
-            attempt++;
-        }
-    }
-    return result;
-}
-
-updateResult MongoDbHandler::updateOneWithRetry(mongocxx::collection& collection, const bsoncxx::document::view& filter, const bsoncxx::document::view& update,
-                                                int max_retries, int retry_interval_ms)
-{
-    int attempt = 0;
-    updateResult result;
-    while (attempt < max_retries)
-    {
-        try
-        {
-            result = collection.update_one(filter, update);
-            SERVER_INFO("Document updated successfully.");
-            if (result) break;
-        }
-        catch (const std::exception& e)
-        {
-            SERVER_ERROR("Insert attempt {} failed: {}", (attempt + 1), e.what());
-            if (attempt + 1 >= max_retries)
-            {
-                SERVER_ERROR("Maximum retries reached. Giving up.");
-                throw e;
-            }
-            std::this_thread::sleep_for(std::chrono::milliseconds(retry_interval_ms));
-            attempt++;
-        }
-    }
-    return result;
-}
-
-updateResult MongoDbHandler::updateManyWithRetry(mongocxx::collection& collection, const bsoncxx::document::view& filter, const bsoncxx::document::view& update,
-                                                 int max_retries, int retry_interval_ms)
-{
-    int attempt = 0;
-    updateResult result;
-    while (attempt < max_retries)
-    {
-        try
-        {
-            result = collection.update_many(filter, update);
-            SERVER_INFO("Document updated successfully.");
-            if (result) break;
-        }
-        catch (const std::exception& e)
-        {
-            SERVER_ERROR("Insert attempt {} failed: {}", (attempt + 1), e.what());
-            if (attempt + 1 >= max_retries)
-            {
-                SERVER_ERROR("Maximum retries reached. Giving up.");
-                throw e;
-            }
-            std::this_thread::sleep_for(std::chrono::milliseconds(retry_interval_ms));
-            attempt++;
-        }
-    }
-    return result;
-}
-
-deleteResult MongoDbHandler::deleteOneWithRetry(mongocxx::collection& collection, const bsoncxx::document::view& filter,
-                                                int max_retries, int retry_interval_ms)
-{
-    int attempt = 0;
-    deleteResult result;
-    while (attempt < max_retries)
-    {
-        try 
-        {
-            result = collection.delete_one(filter);
-            SERVER_INFO("Document deleted successfully.");
-            if (result) break;
-        }
-        catch (const std::exception& e)
-        {
-            SERVER_ERROR("Insert attempt {} failed: {}", (attempt + 1), e.what());
-            if (attempt + 1 >= max_retries)
-            {
-                SERVER_ERROR("Maximum retries reached. Giving up.");
-                throw e;
-            }
-            std::this_thread::sleep_for(std::chrono::milliseconds(retry_interval_ms));
-            attempt++;
-        }
-    }
-    return result;
-}
-
-deleteResult MongoDbHandler::deleteManyWithRetry(mongocxx::collection& collection, const bsoncxx::document::view& filter,
-                                                 int max_retries, int retry_interval_ms)
-{
-    int attempt = 0;
-    deleteResult result;
-    while (attempt < max_retries)
-    {
-        try
-        {
-            result = collection.delete_many(filter);
-            SERVER_INFO("Documents deleted successfully.");
-            if (result) break;
-        }
-        catch (const std::exception& e)
-        {
-            SERVER_ERROR("Insert attempt {} failed: {}", (attempt + 1), e.what());
-            if (attempt + 1 >= max_retries)
-            {
-                SERVER_ERROR("Maximum retries reached. Giving up.");
-                throw e;
-            }
-            std::this_thread::sleep_for(std::chrono::milliseconds(retry_interval_ms));
-            attempt++;
-        }
-    }
-    return result;
-}
-
 bool MongoDbHandler::registerUser(const std::string& username, const std::string& password)
 {
     // Create user document
@@ -453,11 +229,11 @@ bool MongoDbHandler::createServer(const std::string& username, const std::string
 
 
         // Add first channel to the server
-        if (!addChannelToServer(serverName, defaultChannelName))
+        if (!addRemoveChannelFromServer(serverName, defaultChannelName, "$push"))
             return false;
 
         // Add server to user's server list
-        if (!addServerToUser(username, serverName))
+        if (!addRemoveServerFromMember(username, serverName, "$push"))
             return false;
 
         return true;
@@ -513,34 +289,35 @@ bool MongoDbHandler::deleteServer(std::string serverName)
     }
 }
 
-bool MongoDbHandler::addServerToUser(std::string username, std::string serverName)
+bool MongoDbHandler::addRemoveChannelFromServer(std::string serverName, std::string channelName, std::string action)
 {
-    // Add server to user's server list
-    SERVER_INFO("MongoDbHandle::addServerToUser");
+    SERVER_INFO("MongoDbHandle::addChannelToServer");
     try
     {
-        // Define the filter to find the user document to update server list
+        // Create the channel document
+        createChannel(serverName, channelName);
+
+        // Add channel to server's channel list
+        // Prepare update server document
         auto filter = bsoncxx::builder::stream::document{}
-            << "username" << username
+            << "name" << serverName
             << bsoncxx::builder::stream::finalize;
 
         // Define the update to update last_login and status
         auto update = bsoncxx::builder::stream::document{}
-            << "$push"
+            << action
             << bsoncxx::builder::stream::open_document
-            << "servers" << serverName
+            << "channels" << channelName
             << bsoncxx::builder::stream::close_document
             << bsoncxx::builder::stream::finalize;
 
         // Perform the update operation
-        auto userUpdateResult = updateOneWithRetry(m_userCollection, filter.view(), update.view());
-        if (!userUpdateResult)
+        if (!updateOneWithRetry(m_serverCollection, filter.view(), update.view()))
         {
             SERVER_INFO("No documents matched the filter");
             return false;
         }
 
-        SERVER_INFO("Server successfully added to user");
         return true;
     }
     catch (std::exception& e)
@@ -548,53 +325,6 @@ bool MongoDbHandler::addServerToUser(std::string username, std::string serverNam
         SERVER_ERROR("{}", e.what());
         return false;
     }
-}
-
-bool MongoDbHandler::removeServerFromUser(std::string username, std::string serverName)
-{
-    SERVER_INFO("MongoDbHandle::removeServerFromUser");
-    return true;
-}
-
-bool MongoDbHandler::addChannelToServer(std::string serverName, std::string channelName)
-{
-    SERVER_INFO("MongoDbHandle::addChannelToServer");
-    try
-    {
-        // Create the home channel for the created server
-        // Initialize messages array
-        bsoncxx::builder::basic::array messagesArr = bsoncxx::builder::basic::array{};
-
-        // Prepare channel document
-        auto newChannelDoc = bsoncxx::builder::stream::document{}
-            << "server" << serverName
-            << "name" << channelName
-            << "messages" << messagesArr
-            << "created_at" << std::to_string(getSecondsSinceEpoch())
-            << bsoncxx::builder::stream::finalize;
-
-        // Perform insertion
-        auto channelCreationResult = insertOneWithRetry(m_channelCollection, newChannelDoc.view());
-        if (!channelCreationResult)
-        {
-            SERVER_INFO("Failed to create channel.");
-            return false;
-        }
-
-        SERVER_INFO("Channel successfully created");
-        return true;
-    }
-    catch (std::exception& e)
-    {
-        SERVER_ERROR("{}", e.what());
-        return false;
-    }
-}
-
-bool MongoDbHandler::removeChannelFromServer(std::string serverName, std::string channelName)
-{
-    SERVER_INFO("MongoDbHandle::removeChannelFromServer");
-    return true;
 }
 
 bool MongoDbHandler::joinServer(std::string serverName, std::string username)
@@ -625,4 +355,455 @@ bool MongoDbHandler::deleteMessage()
 {
     SERVER_INFO("MongoDbHandle::deleteMessage");
     return true;
+}
+
+bool MongoDbHandler::createChannel(std::string serverName, std::string channelName)
+{
+    SERVER_INFO("MongoDbHandle::createChannel");
+    try
+    {
+        // Create the home channel for the created server
+        // Initialize messages array
+        bsoncxx::builder::basic::array messagesArr = bsoncxx::builder::basic::array{};
+
+        // Prepare channel document
+        auto newChannelDoc = bsoncxx::builder::stream::document{}
+            << "server" << serverName
+            << "name" << channelName
+            << "messages" << messagesArr
+            << "created_at" << std::to_string(getSecondsSinceEpoch())
+            << bsoncxx::builder::stream::finalize;
+
+        // Perform insertion
+        if (!insertOneWithRetry(m_channelCollection, newChannelDoc.view()))
+        {
+            SERVER_INFO("Failed to create channel.");
+            return false;
+        }
+
+        SERVER_INFO("Channel successfully created");
+        return true;
+    }
+    catch (std::exception& e)
+    {
+        SERVER_ERROR("{}", e.what());
+        return false;
+    }
+}
+
+bool MongoDbHandler::deleteChannel(std::string serverName, std::string channelName) 
+{
+    SERVER_INFO("MongoDbHandle::deleteChannel");
+    try
+    {
+        // Delete channel document
+        // Prepare channel deletion document
+        auto deleteChannelDoc = bsoncxx::builder::stream::document{}
+            << "server" << serverName
+            << "name" << channelName
+            << bsoncxx::builder::stream::finalize;
+
+        // Perform insertion
+        if (!deleteOneWithRetry(m_channelCollection, deleteChannelDoc.view()))
+        {
+            SERVER_INFO("Failed to delete channel.");
+            return false;
+        }
+
+        SERVER_INFO("Channel successfully deleted");
+        return true;
+    }
+    catch (std::exception& e)
+    {
+        SERVER_ERROR("{}", e.what());
+        return false;
+    }
+}
+
+bool MongoDbHandler::deleteChannels(std::string serverName)
+{
+    SERVER_INFO("MongoDbHandle::deleteChannel");
+    try
+    {
+        // Prepare filter document
+        auto filter = bsoncxx::builder::stream::document{}
+            << "server" << serverName
+            << bsoncxx::builder::stream::finalize;
+
+        // Perform insertion
+        if (!deleteManyWithRetry(m_channelCollection, filter.view()))
+        {
+            SERVER_INFO("Failed to delete channels.");
+            return false;
+        }
+
+        SERVER_INFO("Channels successfully deleted");
+        return true;
+    }
+    catch (std::exception& e)
+    {
+        SERVER_ERROR("{}", e.what());
+        return false;
+    }
+}
+
+bool MongoDbHandler::removeServerFromAllMembers(std::string serverName)
+{
+    SERVER_INFO("MongoDbHandle::removeServerFromAllMembers");
+    try
+    {
+        // Prepare filter document
+        auto filter = bsoncxx::builder::stream::document{}
+            << "servers"
+            << bsoncxx::builder::stream::open_document
+            << "$elemMatch" << bsoncxx::types::b_string(serverName)
+            << bsoncxx::builder::stream::close_document
+            << bsoncxx::builder::stream::finalize;
+
+        auto update = bsoncxx::builder::stream::document{}
+            << "$pull"
+            << bsoncxx::builder::stream::open_document
+            << "servers" << serverName
+            << bsoncxx::builder::stream::close_document
+            << bsoncxx::builder::stream::finalize;
+
+        // Perform insertion
+        if (!updateManyWithRetry(m_userCollection, filter.view(), update.view()))
+        {
+            SERVER_INFO("Failed to remove server from members.");
+            return false;
+        }
+
+        SERVER_INFO("Server successfully removed from members");
+        return true;
+    }
+    catch (std::exception& e)
+    {
+        SERVER_ERROR("{}", e.what());
+        return false;
+    }
+}
+
+bool MongoDbHandler::addRemoveServerFromMember(std::string username, std::string serverName, std::string action)
+{
+    SERVER_INFO("MongoDbHandle::addRemoveServerFromUser");
+    try
+    {
+        // Prepare update server document
+        auto filter = bsoncxx::builder::stream::document{}
+            << "username" << username
+            << bsoncxx::builder::stream::finalize;
+
+        // Define the update to update last_login and status
+        auto update = bsoncxx::builder::stream::document{}
+            << action
+            << bsoncxx::builder::stream::open_document
+            << "servers" << serverName
+            << bsoncxx::builder::stream::close_document
+            << bsoncxx::builder::stream::finalize;
+
+        // Perform the update operation
+        if (!updateOneWithRetry(m_userCollection, filter.view(), update.view()))
+        {
+            SERVER_INFO("No documents matched the filter");
+            return false;
+        }
+
+        SERVER_INFO("Server successfully {} from user", action == "$push" ? "added" : "removed");
+        return true;
+    }
+    catch (std::exception& e)
+    {
+        SERVER_ERROR("{}", e.what());
+        return false;
+    }
+}
+
+bool MongoDbHandler::addRemoveMemberFromServer(std::string username, std::string serverName, std::string action)
+{
+    SERVER_INFO("MongoDbHandle::addRemoveUserFromServer");
+    try
+    {
+        // Prepare update server document
+        auto filter = bsoncxx::builder::stream::document{}
+            << "name" << serverName
+            << bsoncxx::builder::stream::finalize;
+
+        // Define the update to update last_login and status
+        auto update = bsoncxx::builder::stream::document{}
+            << action
+            << bsoncxx::builder::stream::open_document
+            << "members" << username
+            << bsoncxx::builder::stream::close_document
+            << bsoncxx::builder::stream::finalize;
+
+        // Perform the update operation
+        if (!updateOneWithRetry(m_userCollection, filter.view(), update.view()))
+        {
+            SERVER_INFO("No documents matched the filter");
+            return false;
+        }
+
+        SERVER_INFO("User successfully {} from server", action == "$push" ? "added" : "removed");
+        return true;
+    }
+    catch (std::exception& e)
+    {
+        SERVER_ERROR("{}", e.what());
+        return false;
+    }
+}
+
+
+findOneResult MongoDbHandler::findOneWithRetry(mongocxx::collection& collection, const bsoncxx::document::view& filter,
+                                               int max_retries, int retry_interval_ms)
+{
+    int attempt = 0;
+    findOneResult result;
+    while (attempt < max_retries)
+    {
+        try
+        {
+            result = collection.find_one(filter);
+            SERVER_INFO("Document found successfully.");
+            if (result) break;
+        }
+        catch (const std::exception& e)
+        {
+            SERVER_ERROR("Find attempt {} failed: {}", (attempt + 1), e.what());
+            if (attempt + 1 >= max_retries)
+            {
+                SERVER_ERROR("Maximum retries reached. Giving up.");
+                throw e;
+            }
+            std::this_thread::sleep_for(std::chrono::milliseconds(retry_interval_ms));
+            attempt++;
+        }
+    }
+    return result;
+}
+
+findManyResult MongoDbHandler::findManyWithRetry(mongocxx::collection& collection, const bsoncxx::document::view& filter,
+                                                 int max_retries, int retry_interval_ms)
+{
+    int attempt = 0;
+    findManyResult result;
+    while (attempt < max_retries)
+    {
+        try
+        {
+            result = collection.find(filter);
+            SERVER_INFO("Documents found successfully.");
+            if (result) break;
+        }
+        catch (const std::exception& e)
+        {
+            SERVER_ERROR("Find attempt {} failed: {}", (attempt + 1), e.what());
+            if (attempt + 1 >= max_retries)
+            {
+                SERVER_ERROR("Maximum retries reached. Giving up.");
+                throw e;
+            }
+            std::this_thread::sleep_for(std::chrono::milliseconds(retry_interval_ms));
+            attempt++;
+        }
+    }
+    return result;
+}
+
+insertOneResult MongoDbHandler::insertOneWithRetry(mongocxx::collection& collection, const bsoncxx::document::view& document,
+                                                   int max_retries, int retry_interval_ms)
+{
+    int attempt = 0;
+    insertOneResult result;
+    while (attempt < max_retries)
+    {
+        try
+        {
+            result = collection.insert_one(document);
+            SERVER_INFO("Document inserted successfully.");
+            if (result) break;
+        }
+        catch (const std::exception& e)
+        {
+            SERVER_ERROR("Insert attempt {} failed: {}", (attempt + 1), e.what());
+            if (attempt + 1 >= max_retries)
+            {
+                SERVER_ERROR("Maximum retries reached. Giving up.");
+                throw e;
+            }
+            std::this_thread::sleep_for(std::chrono::milliseconds(retry_interval_ms));
+            attempt++;
+        }
+    }
+    return result;
+}
+
+insertManyResult MongoDbHandler::insertManyWithRetry(mongocxx::collection& collection, const std::vector<bsoncxx::document::view>& documents,
+                                                     int max_retries, int retry_interval_ms)
+{
+    int attempt = 0;
+    insertManyResult result;
+    while (attempt < max_retries)
+    {
+        try
+        {
+            result = collection.insert_many(documents);
+            SERVER_INFO("Documents inserted successfully.");
+            if (result) break;
+        }
+        catch (const std::exception& e)
+        {
+            SERVER_ERROR("Insert attempt {} failed: {}", (attempt + 1), e.what());
+            if (attempt + 1 >= max_retries)
+            {
+                SERVER_ERROR("Maximum retries reached. Giving up.");
+                throw e;
+            }
+            std::this_thread::sleep_for(std::chrono::milliseconds(retry_interval_ms));
+            attempt++;
+        }
+    }
+    return result;
+}
+
+updateResult MongoDbHandler::updateOneWithRetry(mongocxx::collection& collection, const bsoncxx::document::view& filter, const bsoncxx::document::view& update,
+                                                int max_retries, int retry_interval_ms)
+{
+    int attempt = 0;
+    updateResult result;
+    while (attempt < max_retries)
+    {
+        try
+        {
+            result = collection.update_one(filter, update);
+            SERVER_INFO("Document updated successfully.");
+            if (result) break;
+        }
+        catch (const std::exception& e)
+        {
+            SERVER_ERROR("Update attempt {} failed: {}", (attempt + 1), e.what());
+            if (attempt + 1 >= max_retries)
+            {
+                SERVER_ERROR("Maximum retries reached. Giving up.");
+                throw e;
+            }
+            std::this_thread::sleep_for(std::chrono::milliseconds(retry_interval_ms));
+            attempt++;
+        }
+    }
+    return result;
+}
+
+findOneResult MongoDbHandler::findOneAndUpdateWithRetry(mongocxx::collection& collection, const bsoncxx::document::view& filter, const bsoncxx::document::view& update,
+                                                        int max_retries, int retry_interval_ms)
+{
+    int attempt = 0;
+    findOneResult result;
+    while (attempt < max_retries)
+    {
+        try
+        {
+            result = collection.find_one_and_update(filter, update);
+            SERVER_INFO("Document updated successfully.");
+            if (result) break;
+        }
+        catch (const std::exception& e)
+        {
+            SERVER_ERROR("Update attempt {} failed: {}", (attempt + 1), e.what());
+            if (attempt + 1 >= max_retries)
+            {
+                SERVER_ERROR("Maximum retries reached. Giving up.");
+                throw e;
+            }
+            std::this_thread::sleep_for(std::chrono::milliseconds(retry_interval_ms));
+            attempt++;
+        }
+    }
+    return result;
+}
+
+
+updateResult MongoDbHandler::updateManyWithRetry(mongocxx::collection& collection, const bsoncxx::document::view& filter, const bsoncxx::document::view& update,
+                                                 int max_retries, int retry_interval_ms)
+{
+    int attempt = 0;
+    updateResult result;
+    while (attempt < max_retries)
+    {
+        try
+        {
+            result = collection.update_many(filter, update);
+            SERVER_INFO("Document updated successfully.");
+            if (result) break;
+        }
+        catch (const std::exception& e)
+        {
+            SERVER_ERROR("Update attempt {} failed: {}", (attempt + 1), e.what());
+            if (attempt + 1 >= max_retries)
+            {
+                SERVER_ERROR("Maximum retries reached. Giving up.");
+                throw e;
+            }
+            std::this_thread::sleep_for(std::chrono::milliseconds(retry_interval_ms));
+            attempt++;
+        }
+    }
+    return result;
+}
+
+deleteResult MongoDbHandler::deleteOneWithRetry(mongocxx::collection& collection, const bsoncxx::document::view& filter,
+                                                int max_retries, int retry_interval_ms)
+{
+    int attempt = 0;
+    deleteResult result;
+    while (attempt < max_retries)
+    {
+        try
+        {
+            result = collection.delete_one(filter);
+            SERVER_INFO("Document deleted successfully.");
+            if (result) break;
+        }
+        catch (const std::exception& e)
+        {
+            SERVER_ERROR("Delete attempt {} failed: {}", (attempt + 1), e.what());
+            if (attempt + 1 >= max_retries)
+            {
+                SERVER_ERROR("Maximum retries reached. Giving up.");
+                throw e;
+            }
+            std::this_thread::sleep_for(std::chrono::milliseconds(retry_interval_ms));
+            attempt++;
+        }
+    }
+    return result;
+}
+
+deleteResult MongoDbHandler::deleteManyWithRetry(mongocxx::collection& collection, const bsoncxx::document::view& filter,
+                                                 int max_retries, int retry_interval_ms)
+{
+    int attempt = 0;
+    deleteResult result;
+    while (attempt < max_retries)
+    {
+        try
+        {
+            result = collection.delete_many(filter);
+            SERVER_INFO("Documents deleted successfully.");
+            if (result) break;
+        }
+        catch (const std::exception& e)
+        {
+            SERVER_ERROR("Delete attempt {} failed: {}", (attempt + 1), e.what());
+            if (attempt + 1 >= max_retries)
+            {
+                SERVER_ERROR("Maximum retries reached. Giving up.");
+                throw e;
+            }
+            std::this_thread::sleep_for(std::chrono::milliseconds(retry_interval_ms));
+            attempt++;
+        }
+    }
+    return result;
 }

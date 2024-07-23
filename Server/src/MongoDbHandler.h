@@ -78,6 +78,38 @@ class MongoDbHandler
 public:
     MongoDbHandler() : m_uri(k_mongoDbUri), m_client(mongocxx::client(m_uri)), m_db(m_client[k_database]) {}
     ~MongoDbHandler() {}
+    
+    bool registerUser(const std::string& username, const std::string& password);
+    bool deleteUser(const std::string& username);
+
+    bool login(const std::string& username, const std::string& password);
+    bool logout(const std::string& username);
+
+    bool createServer(const std::string& username, const std::string& serverName);
+    bool deleteServer(std::string serverName);
+    
+    bool addRemoveChannelFromServer(std::string serverName, std::string channelName, std::string action); // Action is $push or $pull
+
+    bool joinServer(std::string serverName, std::string username);
+    bool leaveServer(std::string serverName, std::string username);
+
+    bool sendMessage();
+    bool editMessage();
+    bool deleteMessage();
+
+private:
+    // Add a channel belonging to the given server
+    bool createChannel(std::string serverName, std::string channelName);
+
+    // Delete specific channel belonging to the given server
+    bool deleteChannel(std::string serverName, std::string channelName);
+
+    // Delete all channels belonging to the given server
+    bool deleteChannels(std::string serverName);
+
+    bool removeServerFromAllMembers(std::string serverName);
+    bool addRemoveServerFromMember(std::string username, std::string serverName, std::string action); // Action is $push or $pull
+    bool addRemoveMemberFromServer(std::string username, std::string serverName, std::string action); // Action is $push or $pull
 
     findOneResult findOneWithRetry(mongocxx::collection& collection, const bsoncxx::document::view& filter,
                                    int max_retries = 3, int retry_interval_ms = 1000);
@@ -91,65 +123,12 @@ public:
                                     int max_retries = 3, int retry_interval_ms = 1000);
     updateResult updateManyWithRetry(mongocxx::collection& collection, const bsoncxx::document::view& filter, const bsoncxx::document::view& update,
                                      int max_retries = 3, int retry_interval_ms = 1000);
+    findOneResult findOneAndUpdateWithRetry(mongocxx::collection& collection, const bsoncxx::document::view& filter, const bsoncxx::document::view& update,
+                                            int max_retries = 3, int retry_interval_ms = 1000);
     deleteResult deleteOneWithRetry(mongocxx::collection& collection, const bsoncxx::document::view& filter,
                                     int max_retries = 3, int retry_interval_ms = 1000);
     deleteResult deleteManyWithRetry(mongocxx::collection& collection, const bsoncxx::document::view& filter,
                                      int max_retries = 3, int retry_interval_ms = 1000);
-    
-    //Create user document
-    bool registerUser(const std::string& username, const std::string& password);
-
-    // Go through user's server list and remove them from each server
-    // Delete any servers the user is the owner of
-    // Delete any channels the user's servers' has
-    // Delete user
-    bool deleteUser(const std::string& username);
-
-    bool login(const std::string& username, const std::string& password);
-
-    bool logout(const std::string& username);
-
-    // Add server to owner's server list
-    // Create Server
-    // addChannelToServer("Home")
-    bool createServer(const std::string& username, const std::string& serverName);
-
-    // Find server
-    //   return if fail
-    // Delete all channels of server
-    //   return if fail
-    // Remove server from every members server list
-    //   return if fail
-    // Delete server
-    bool deleteServer(std::string serverName);
-
-    bool addServerToUser(std::string username, std::string serverName);
-
-    bool removeServerFromUser(std::string username, std::string serverName);
-
-    // Find server
-    //   return if fail
-    // Build create channel document
-    //   return if fail
-    // Add channel to server doc channel list
-    bool addChannelToServer(std::string serverName, std::string channelName);
-
-    // Find server
-    //   return if fail
-    // Build delete channel document
-    //   return if fail
-    // Add channel to server doc channel list
-    bool removeChannelFromServer(std::string serverName, std::string channelName);
-
-    bool joinServer(std::string serverName, std::string username);
-
-    bool leaveServer(std::string serverName, std::string username);
-
-    bool sendMessage();
-
-    bool editMessage();
-
-    bool deleteMessage();
 
 private:
     //mongocxx::instance m_instance{};
