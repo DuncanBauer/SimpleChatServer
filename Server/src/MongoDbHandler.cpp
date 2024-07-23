@@ -5,7 +5,7 @@
 #include "MongoDbHandler.h"
 #include "Util.h"
 
-bool MongoDbHandler::registerUser(const std::string& username, const std::string& password)
+bool MongoDbHandler::createUser(const std::string& username, const std::string& password)
 {
     // Create user document
     SERVER_INFO("MongoDbHandle::registerUser");
@@ -88,9 +88,6 @@ bool MongoDbHandler::deleteUser(const std::string& username)
 
 bool MongoDbHandler::login(const std::string& username, const std::string& password)
 {
-    // Find user document
-    // Check password hash
-    // Update last_login and status
     SERVER_INFO("MongoDbHandle::login");
     try
     {
@@ -193,10 +190,13 @@ bool MongoDbHandler::logout(const std::string& username)
 
 bool MongoDbHandler::createServer(const std::string& username, const std::string& serverName)
 {
+    SERVER_INFO("MongoDbHandle::createServer");
+    createServerDoc();
+    createChannelDoc();
+/*
     // Create Server
     // Add Channel to server
     // Add server to owner's server list
-    SERVER_INFO("MongoDbHandle::createServer");
     try
     {
         std::string defaultChannelName = "Home";
@@ -243,11 +243,19 @@ bool MongoDbHandler::createServer(const std::string& username, const std::string
         SERVER_ERROR("{}", e.what());
         return false;
     }
+*/
+
+    return true;
 }
 
 bool MongoDbHandler::deleteServer(std::string serverName)
 {
     SERVER_INFO("MongoDbHandle::deleteServer");
+    deleteMessageDocs();
+    deleteChannelDocs();
+    removeServerFromAllMembers();
+    deleteServerDoc();
+/*
     try
     {
         bool retVal = true;
@@ -287,6 +295,176 @@ bool MongoDbHandler::deleteServer(std::string serverName)
         SERVER_ERROR("{}", e.what());
         return false;
     }
+*/
+
+    return true;
+}
+
+bool MongoDbHandler::joinServer(std::string serverName, std::string username)
+{
+    SERVER_INFO("MongoDbHandle::joinServer");
+    addRemoveMemberFromServer();
+    addRemoveServerFromMember();
+    return true;
+}
+
+bool MongoDbHandler::leaveServer(std::string serverName, std::string username)
+{
+    SERVER_INFO("MongoDbHandle::leaveServer");
+    addRemoveMemberFromServer();
+    addRemoveServerFromMember();
+    return true;
+}
+
+bool MongoDbHandler::createChannel(std::string serverName, std::string channelName)
+{
+    SERVER_INFO("MongoDbHandle::createChannel");
+    createChannelDoc();
+    addRemoveChannelFromServer();
+/*
+    try
+    {
+        // Create the home channel for the created server
+        // Initialize messages array
+        bsoncxx::builder::basic::array messagesArr = bsoncxx::builder::basic::array{};
+
+        // Prepare channel document
+        auto newChannelDoc = bsoncxx::builder::stream::document{}
+            << "server" << serverName
+            << "name" << channelName
+            << "messages" << messagesArr
+            << "created_at" << std::to_string(getSecondsSinceEpoch())
+            << bsoncxx::builder::stream::finalize;
+
+        // Perform insertion
+        if (!insertOneWithRetry(m_channelCollection, newChannelDoc.view()))
+        {
+            SERVER_INFO("Failed to create channel.");
+            return false;
+        }
+
+        SERVER_INFO("Channel successfully created");
+        return true;
+    }
+    catch (std::exception& e)
+    {
+        SERVER_ERROR("{}", e.what());
+        return false;
+    }
+*/
+    return true;
+}
+
+bool MongoDbHandler::deleteChannel(std::string serverName, std::string channelName)
+{
+    SERVER_INFO("MongoDbHandle::deleteChannel");
+    deleteMessageDocs();
+    deleteChannelDoc();
+/*
+    try
+    {
+        // Delete channel document
+        // Prepare channel deletion document
+        auto deleteChannelDoc = bsoncxx::builder::stream::document{}
+            << "server" << serverName
+            << "name" << channelName
+            << bsoncxx::builder::stream::finalize;
+
+        // Perform insertion
+        if (!deleteOneWithRetry(m_channelCollection, deleteChannelDoc.view()))
+        {
+            SERVER_INFO("Failed to delete channel.");
+            return false;
+        }
+
+        SERVER_INFO("Channel successfully deleted");
+        return true;
+    }
+    catch (std::exception& e)
+    {
+        SERVER_ERROR("{}", e.what());
+        return false;
+    }
+*/
+    return true;
+}
+
+bool MongoDbHandler::sendMessage()
+{
+    SERVER_INFO("MongoDbHandle::sendMessage");
+    createMessageDoc();
+    addRemoveMessageFromChannel();
+    return true;
+}
+
+bool MongoDbHandler::deleteMessage()
+{
+    SERVER_INFO("MongoDbHandle::deleteMessage");
+    deleteMessageDoc();
+    addRemoveMessageFromChannel();
+    return true;
+}
+
+bool MongoDbHandler::editMessage()
+{
+    SERVER_INFO("MongoDbHandle::editMessage");
+    return true;
+}
+
+
+
+
+bool MongoDbHandler::createServerDoc() {}
+
+bool MongoDbHandler::deleteServerDoc() {}
+
+bool MongoDbHandler::createChannelDoc() {}
+
+bool MongoDbHandler::deleteChannelDoc() {}
+
+bool MongoDbHandler::deleteChannelDocs() {}
+
+bool MongoDbHandler::createMessageDoc() {}
+
+bool MongoDbHandler::deleteMessageDoc() {}
+
+bool MongoDbHandler::deleteMessageDocs() {}
+
+bool MongoDbHandler::removeServerFromAllMembers(std::string serverName)
+{
+    SERVER_INFO("MongoDbHandle::removeServerFromAllMembers");
+    try
+    {
+        // Prepare filter document
+        auto filter = bsoncxx::builder::stream::document{}
+            << "servers"
+            << bsoncxx::builder::stream::open_document
+            << "$elemMatch" << bsoncxx::types::b_string(serverName)
+            << bsoncxx::builder::stream::close_document
+            << bsoncxx::builder::stream::finalize;
+
+        auto update = bsoncxx::builder::stream::document{}
+            << "$pull"
+            << bsoncxx::builder::stream::open_document
+            << "servers" << serverName
+            << bsoncxx::builder::stream::close_document
+            << bsoncxx::builder::stream::finalize;
+
+        // Perform insertion
+        if (!updateManyWithRetry(m_userCollection, filter.view(), update.view()))
+        {
+            SERVER_INFO("Failed to remove server from members.");
+            return false;
+        }
+
+        SERVER_INFO("Server successfully removed from members");
+        return true;
+    }
+    catch (std::exception& e)
+    {
+        SERVER_ERROR("{}", e.what());
+        return false;
+    }
 }
 
 bool MongoDbHandler::addRemoveChannelFromServer(std::string serverName, std::string channelName, std::string action)
@@ -318,163 +496,6 @@ bool MongoDbHandler::addRemoveChannelFromServer(std::string serverName, std::str
             return false;
         }
 
-        return true;
-    }
-    catch (std::exception& e)
-    {
-        SERVER_ERROR("{}", e.what());
-        return false;
-    }
-}
-
-bool MongoDbHandler::joinServer(std::string serverName, std::string username)
-{
-    SERVER_INFO("MongoDbHandle::joinServer");
-    return true;
-}
-
-bool MongoDbHandler::leaveServer(std::string serverName, std::string username)
-{
-    SERVER_INFO("MongoDbHandle::leaveServer");
-    return true;
-}
-
-bool MongoDbHandler::sendMessage()
-{
-    SERVER_INFO("MongoDbHandle::sendMessage");
-    return true;
-}
-
-bool MongoDbHandler::editMessage()
-{
-    SERVER_INFO("MongoDbHandle::editMessage");
-    return true;
-}
-
-bool MongoDbHandler::deleteMessage()
-{
-    SERVER_INFO("MongoDbHandle::deleteMessage");
-    return true;
-}
-
-bool MongoDbHandler::createChannel(std::string serverName, std::string channelName)
-{
-    SERVER_INFO("MongoDbHandle::createChannel");
-    try
-    {
-        // Create the home channel for the created server
-        // Initialize messages array
-        bsoncxx::builder::basic::array messagesArr = bsoncxx::builder::basic::array{};
-
-        // Prepare channel document
-        auto newChannelDoc = bsoncxx::builder::stream::document{}
-            << "server" << serverName
-            << "name" << channelName
-            << "messages" << messagesArr
-            << "created_at" << std::to_string(getSecondsSinceEpoch())
-            << bsoncxx::builder::stream::finalize;
-
-        // Perform insertion
-        if (!insertOneWithRetry(m_channelCollection, newChannelDoc.view()))
-        {
-            SERVER_INFO("Failed to create channel.");
-            return false;
-        }
-
-        SERVER_INFO("Channel successfully created");
-        return true;
-    }
-    catch (std::exception& e)
-    {
-        SERVER_ERROR("{}", e.what());
-        return false;
-    }
-}
-
-bool MongoDbHandler::deleteChannel(std::string serverName, std::string channelName) 
-{
-    SERVER_INFO("MongoDbHandle::deleteChannel");
-    try
-    {
-        // Delete channel document
-        // Prepare channel deletion document
-        auto deleteChannelDoc = bsoncxx::builder::stream::document{}
-            << "server" << serverName
-            << "name" << channelName
-            << bsoncxx::builder::stream::finalize;
-
-        // Perform insertion
-        if (!deleteOneWithRetry(m_channelCollection, deleteChannelDoc.view()))
-        {
-            SERVER_INFO("Failed to delete channel.");
-            return false;
-        }
-
-        SERVER_INFO("Channel successfully deleted");
-        return true;
-    }
-    catch (std::exception& e)
-    {
-        SERVER_ERROR("{}", e.what());
-        return false;
-    }
-}
-
-bool MongoDbHandler::deleteChannels(std::string serverName)
-{
-    SERVER_INFO("MongoDbHandle::deleteChannel");
-    try
-    {
-        // Prepare filter document
-        auto filter = bsoncxx::builder::stream::document{}
-            << "server" << serverName
-            << bsoncxx::builder::stream::finalize;
-
-        // Perform insertion
-        if (!deleteManyWithRetry(m_channelCollection, filter.view()))
-        {
-            SERVER_INFO("Failed to delete channels.");
-            return false;
-        }
-
-        SERVER_INFO("Channels successfully deleted");
-        return true;
-    }
-    catch (std::exception& e)
-    {
-        SERVER_ERROR("{}", e.what());
-        return false;
-    }
-}
-
-bool MongoDbHandler::removeServerFromAllMembers(std::string serverName)
-{
-    SERVER_INFO("MongoDbHandle::removeServerFromAllMembers");
-    try
-    {
-        // Prepare filter document
-        auto filter = bsoncxx::builder::stream::document{}
-            << "servers"
-            << bsoncxx::builder::stream::open_document
-            << "$elemMatch" << bsoncxx::types::b_string(serverName)
-            << bsoncxx::builder::stream::close_document
-            << bsoncxx::builder::stream::finalize;
-
-        auto update = bsoncxx::builder::stream::document{}
-            << "$pull"
-            << bsoncxx::builder::stream::open_document
-            << "servers" << serverName
-            << bsoncxx::builder::stream::close_document
-            << bsoncxx::builder::stream::finalize;
-
-        // Perform insertion
-        if (!updateManyWithRetry(m_userCollection, filter.view(), update.view()))
-        {
-            SERVER_INFO("Failed to remove server from members.");
-            return false;
-        }
-
-        SERVER_INFO("Server successfully removed from members");
         return true;
     }
     catch (std::exception& e)
@@ -553,6 +574,37 @@ bool MongoDbHandler::addRemoveMemberFromServer(std::string username, std::string
         return false;
     }
 }
+
+bool MongoDbHandler::addRemoveMessageFromChannel() {}
+
+//bool MongoDbHandler::deleteChannels(std::string serverName)
+//{
+//    SERVER_INFO("MongoDbHandle::deleteChannel");
+//    try
+//    {
+//        // Prepare filter document
+//        auto filter = bsoncxx::builder::stream::document{}
+//            << "server" << serverName
+//            << bsoncxx::builder::stream::finalize;
+//
+//        // Perform insertion
+//        if (!deleteManyWithRetry(m_channelCollection, filter.view()))
+//        {
+//            SERVER_INFO("Failed to delete channels.");
+//            return false;
+//        }
+//
+//        SERVER_INFO("Channels successfully deleted");
+//        return true;
+//    }
+//    catch (std::exception& e)
+//    {
+//        SERVER_ERROR("{}", e.what());
+//        return false;
+//    }
+//}
+
+
 
 
 findOneResult MongoDbHandler::findOneWithRetry(mongocxx::collection& collection, const bsoncxx::document::view& filter,

@@ -79,7 +79,7 @@ public:
     MongoDbHandler() : m_uri(k_mongoDbUri), m_client(mongocxx::client(m_uri)), m_db(m_client[k_database]) {}
     ~MongoDbHandler() {}
     
-    bool registerUser(const std::string& username, const std::string& password);
+    bool createUser(const std::string& username, const std::string& password);
     bool deleteUser(const std::string& username);
 
     bool login(const std::string& username, const std::string& password);
@@ -87,29 +87,48 @@ public:
 
     bool createServer(const std::string& username, const std::string& serverName);
     bool deleteServer(std::string serverName);
-    
-    bool addRemoveChannelFromServer(std::string serverName, std::string channelName, std::string action); // Action is $push or $pull
 
     bool joinServer(std::string serverName, std::string username);
     bool leaveServer(std::string serverName, std::string username);
 
-    bool sendMessage();
-    bool editMessage();
-    bool deleteMessage();
-
-private:
-    // Add a channel belonging to the given server
     bool createChannel(std::string serverName, std::string channelName);
-
-    // Delete specific channel belonging to the given server
     bool deleteChannel(std::string serverName, std::string channelName);
 
-    // Delete all channels belonging to the given server
-    bool deleteChannels(std::string serverName);
+    bool sendMessage();
+    bool deleteMessage();
+    bool editMessage();
+
+private:
+    bool createServerDoc();
+    bool deleteServerDoc();
+    
+    bool createChannelDoc();
+    bool deleteChannelDoc();
+    bool deleteChannelDocs();
+    
+    bool createMessageDoc();
+    bool deleteMessageDoc();
+    bool deleteMessageDocs();
 
     bool removeServerFromAllMembers(std::string serverName);
-    bool addRemoveServerFromMember(std::string username, std::string serverName, std::string action); // Action is $push or $pull
+    
     bool addRemoveMemberFromServer(std::string username, std::string serverName, std::string action); // Action is $push or $pull
+    bool addRemoveServerFromMember(std::string username, std::string serverName, std::string action); // Action is $push or $pull
+    
+    bool addRemoveChannelFromServer(std::string serverName, std::string channelName, std::string action); // Action is $push or $pull
+    bool addRemoveMessageFromChannel();
+
+
+    //bool deleteChannels(std::string serverName);
+    
+
+
+
+
+
+
+
+
 
     findOneResult findOneWithRetry(mongocxx::collection& collection, const bsoncxx::document::view& filter,
                                    int max_retries = 3, int retry_interval_ms = 1000);
