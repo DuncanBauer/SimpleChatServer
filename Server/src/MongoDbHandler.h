@@ -86,21 +86,25 @@ public:
     bool logout(const std::string& username);
 
     bool createServer();
-    bool deleteServer();
+    bool deleteServer(const std::string& serverId);
 
-    bool joinServer();
-    bool leaveServer();
+    bool joinServer(const std::string& serverId, const std::string& userId);
+    bool leaveServer(const std::string& serverId, const std::string& userId);
 
-    bool createChannel();
+    bool createChannel(const std::string& serverId, const std::string& channelName);
     bool deleteChannel(const std::string& channelId);
 
     bool sendMessage(const std::string& authorId, const std::string& channelId, const std::string& content);
     bool deleteMessage(const std::string& channelId, const std::string& messageId);
     bool editMessage(const std::string& messageId, const std::string& message);
 
+    bool getServerChannels();
+    bool getServerMembers();
+    bool getChannelMessages();
+
 private:
     bool createServerDoc(const std::string& serverName, const std::string& owner, std::string& serverId);
-    bool deleteServerDoc(const std::string& serverId);
+    bool deleteServerDoc(const std::string& serverId, std::vector<std::string>& channelIds, std::vector<std::string>& memberIds);
     
     bool createChannelDoc(const std::string& serverId, const std::string& channelName, std::string& channelId);
     bool deleteChannelDoc(const std::string& channelId);
@@ -147,6 +151,8 @@ private:
                                     int max_retries = 3, int retry_interval_ms = 1000);
     deleteResult deleteManyWithRetry(mongocxx::collection& collection, const bsoncxx::document::view& filter,
                                      int max_retries = 3, int retry_interval_ms = 1000);
+    findOneResult findOneAndDeleteWithRetry(mongocxx::collection& collection, const bsoncxx::document::view& filter,
+                                            int max_retries = 3, int retry_interval_ms = 1000);
 
 private:
     //mongocxx::instance m_instance{};
