@@ -23,6 +23,7 @@ bool MongoDbHandler::createUser(const std::string& username, const std::string& 
             << "username"      << username
             << "password_hash" << hashedPassword
             << "salt"          << salt
+            << "owned_servers"       << serversArr
             << "servers"       << serversArr
             << "created_at"    << std::to_string(getSecondsSinceEpoch())
             << "last_login"    << 0
@@ -659,7 +660,7 @@ bool MongoDbHandler::addRemoveMemberFromServer(const std::string& serverId, cons
         auto update = bsoncxx::builder::stream::document{}
             << action
             << bsoncxx::builder::stream::open_document
-            << "members" << userId
+            << "members" << bsoncxx::oid(userId)
             << bsoncxx::builder::stream::close_document
             << bsoncxx::builder::stream::finalize;
 
