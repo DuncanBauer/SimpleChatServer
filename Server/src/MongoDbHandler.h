@@ -15,6 +15,7 @@
 //    "username"         : "username",
 //    "password_hash"    : "hashed_password",
 //    "salt"             : "salt",
+//    "owned_servers"    : ["server_id_1", "server_id_2"],
 //    "servers"          : ["server_id_1", "server_id_2"],
 //    "created_at"       : "timestamp",
 //    "last_login"       : "timestamp",
@@ -81,7 +82,7 @@ public:
     ~MongoDbHandler() {}
     
     bool createUser(const std::string& username, const std::string& password);
-    bool deleteUser(const std::string& username);
+    bool deleteUser(const std::string& userId);
 
     bool login(const std::string& username, const std::string& password);
     bool logout(const std::string& username);
@@ -120,6 +121,7 @@ private:
 
     bool addRemoveMemberFromServer(const std::string& serverId, const std::string& userId, const std::string& action); // Action is $push or $pull
     bool addRemoveServerFromUser(const std::string& serverId, const std::string& userId, const std::string& action); // Action is $push or $pull
+    bool addRemoveOwnedServerFromUser(const std::string& serverId, const std::string& userId, const std::string& action); // Action is $push or $pull
     bool addRemoveChannelFromServer(const std::string& serverId, const std::string& channelId, const std::string& action); // Action is $push or $pull
     bool addRemoveMessageFromChannel(const std::string& channelId, const std::string& messageId, const std::string& action); // Action is $push or $pull
 

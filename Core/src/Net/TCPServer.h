@@ -120,14 +120,14 @@ namespace net
         {
             spdlog::info("[{}]: Logout", client->getID());
 
-            uint32_t usernameSize = 0;
-            std::string username;
+            uint32_t userIdSize = 0;
+            std::string userId;
 
-            usernameSize = packet.readInt();
-            username = packet.readString(usernameSize);
+            userIdSize = packet.readInt();
+            userId = packet.readString(userIdSize);
 
             Packet<PacketType> retPacket;
-            if (m_dbHandler.logout(username))
+            if (m_dbHandler.logout(userId))
             {
                 retPacket.header.id = PacketType::Client_Logout_Success;
                 client->updateClientState(ClientState::NOT_AUTHED);

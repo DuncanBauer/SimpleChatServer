@@ -42,6 +42,8 @@ void showApplicationWindow(net::TCPClient& client)
     ImGui::SameLine();
 
     // Right
+    static char logout_userId[64] = "";
+    
     static char createServer_serverName[64] = "";
     static char createServer_ownerId[64] = "";
 
@@ -80,6 +82,12 @@ void showApplicationWindow(net::TCPClient& client)
         {
             if (ImGui::BeginTabItem("Logout"))
             {
+                ImGui::InputText("User id", logout_userId, IM_ARRAYSIZE(logout_userId));
+                if (ImGui::Button("Execute"))
+                {
+                    std::string userId = stripWhitespace(logout_userId, 64);
+                    client.tryLogout(userId);
+                }
                 ImGui::EndTabItem();
             }
             if (ImGui::BeginTabItem("Create Server"))

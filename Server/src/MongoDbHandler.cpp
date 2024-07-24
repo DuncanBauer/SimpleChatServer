@@ -43,37 +43,48 @@ bool MongoDbHandler::createUser(const std::string& username, const std::string& 
     }
 }
 
-bool MongoDbHandler::deleteUser(const std::string& username)
+bool MongoDbHandler::deleteUser(const std::string& userId)
 {
     SERVER_INFO("MongoDbHandle::deleteUser");
     try
     {
+        // Delete user and retrieve document
+        auto filter = bsoncxx::builder::stream::document{}
+            << "_id" << bsoncxx::oid(userId)
+            << bsoncxx::builder::stream::finalize;
+
+        auto result = findOneAndDeleteWithRetry(m_userCollection, filter.view());
+        if (!result)
+            SERVER_ERROR("Could not find user id.");
+
+        auto view = result->view();
+
         // Go through user's server list and remove them from each server
-        // Delete any servers the user is the owner of
-        // Delete any channels the user's servers' has
-        // Delete user
+        if (!view["servers"] || view["servers"].type() != bsoncxx::type::k_array)
+            SERVER_ERROR("Couldn't find servers array on user document");
 
+        std::vector<std::string> serverIds;
+        for (const auto& elem : view["servers"].get_array().value)
+            if (elem.type() == bsoncxx::type::k_utf8)
+                serverIds.push_back(std::string(elem.get_string().value));
 
+        for (std::string serverId : serverIds)
+            if (!addRemoveMemberFromServer(serverId, userId, "$pull"))
+                SERVER_ERROR("Failed to remove member from server");
 
+        // Go through user's ownedServer list and delete them all
+        if (!view["owned_servers"] || view["owned_servers"].type() != bsoncxx::type::k_array)
+            SERVER_ERROR("Couldn't find owned_servers array on user document");
 
-        //mongocxx::collection collection = m_db[k_usersCollection];
+        std::vector<std::string> ownedServerIds;
+        for (const auto& elem : view["owned_servers"].get_array().value)
+            if (elem.type() == bsoncxx::type::k_utf8)
+                ownedServerIds.push_back(std::string(elem.get_string().value));
+        
+        for(std::string ownedServerId : ownedServerIds)
+            if(!deleteServer(ownedServerId))
+                SERVER_ERROR("Failed to delete owned server");
 
-        //// Define the filter document
-        //auto filter = bsoncxx::builder::stream::document{}
-        //    << "username" << username
-        //    << bsoncxx::builder::stream::finalize;
-
-        //// Perform the delete_one operation
-        //auto deletionResult = collection.delete_one(filter.view());
-
-        //// Check if a document was deleted
-        //if (!deletionResult)
-        //{
-        //    SERVER_INFO("No document matched the filter criteria.");
-        //    return false;
-        //}
-
-        //SERVER_INFO("Deleted " << deletionResult->deleted_count() << " document(s).");
         return true;
     }
     catch (std::exception& e)
@@ -182,8 +193,8 @@ bool MongoDbHandler::createServer(const std::string& serverName, const std::stri
     if (!createChannelDoc(serverId, "Home", channelId))
         SERVER_ERROR("Channel document not created");
 
-    if (!addRemoveServerFromUser(serverId, userId, "$push"))
-        SERVER_ERROR("Server id not added to user server list");
+    if (!addRemoveOwnedServerFromUser(serverId, userId, "$push"))
+        SERVER_ERROR("Server id not added to user owned server list");
 
     if (!addRemoveChannelFromServer(serverId, channelId, "$push"))
         SERVER_ERROR("Server id not added to user server list");
@@ -681,6 +692,39 @@ bool MongoDbHandler::addRemoveServerFromUser(const std::string& serverId, const 
             << action
             << bsoncxx::builder::stream::open_document
             << "servers" << bsoncxx::oid(serverId)
+            << bsoncxx::builder::stream::close_document
+            << bsoncxx::builder::stream::finalize;
+
+        // Perform update
+        if (!updateOneWithRetry(m_userCollection, filter.view(), update.view()))
+            SERVER_INFO("No documents matched the filter");
+
+        SERVER_INFO("Server successfully {} user", action == "$push" ? "added to" : "removed from");
+        return true;
+    }
+    catch (std::exception& e)
+    {
+        SERVER_ERROR("{}", e.what());
+        return false;
+    }
+}
+
+bool MongoDbHandler::addRemoveOwnedServerFromUser(const std::string& serverId, const std::string& userId, const std::string& action)
+{
+    SERVER_INFO("MongoDbHandle::addRemoveOwnedServerFromUser");
+    try
+    {
+        // Prepare document
+        auto filter = bsoncxx::builder::stream::document{}
+            << "_id" << bsoncxx::oid(userId)
+            << bsoncxx::builder::stream::finalize;
+
+        // Prepare update
+        auto update = bsoncxx::builder::stream::document{}
+            << action
+            << bsoncxx::builder::stream::open_document
+            << "servers" << bsoncxx::oid(serverId)
+            << "owned_servers" << bsoncxx::oid(serverId)
             << bsoncxx::builder::stream::close_document
             << bsoncxx::builder::stream::finalize;
 

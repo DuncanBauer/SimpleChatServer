@@ -111,6 +111,17 @@ namespace net
             send(packet);
         }
 
+        void tryLogout(const std::string& userId)
+        {
+            Packet<PacketType> packet;
+            packet.header.id = PacketType::Server_Logout;
+
+            packet.writeInt((uint32_t)userId.size());
+            packet.writeString(userId);
+
+            send(packet);
+        }
+
         void tryRegister(const std::string& username, const std::string& password)
         {
             Packet<PacketType> packet;
