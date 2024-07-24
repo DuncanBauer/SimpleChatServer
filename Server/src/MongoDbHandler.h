@@ -44,7 +44,7 @@
 //Messages collection
 //{
 //    "_id"              : "message_id",
-//    "author"           : "user_id",
+//    "user_id"           : "user_id",
 //    "channel_id"       : "channel_id",
 //    "content"          : "message_content",
 //    "created_at"       : "timestamp"
@@ -86,16 +86,16 @@ public:
     bool login(const std::string& username, const std::string& password);
     bool logout(const std::string& username);
 
-    bool createServer(const std::string& ownerId, const std::string& serverName);
+    bool createServer(const std::string& serverName, const std::string& userId);
     bool deleteServer(const std::string& serverId);
 
     bool joinServer(const std::string& serverId, const std::string& userId);
     bool leaveServer(const std::string& serverId, const std::string& userId);
 
     bool createChannel(const std::string& serverId, const std::string& channelName);
-    bool deleteChannel(const std::string& channelId);
+    bool deleteChannel(const std::string& serverId, const std::string& channelId);
 
-    bool sendMessage(const std::string& authorId, const std::string& channelId, const std::string& content);
+    bool sendMessage(const std::string& userId, const std::string& channelId, const std::string& content);
     bool deleteMessage(const std::string& channelId, const std::string& messageId);
     bool editMessage(const std::string& messageId, const std::string& content);
 
@@ -104,14 +104,14 @@ public:
     bool getChannelMessages();
 
 private:
-    bool createServerDoc(const std::string& ownerId, const std::string& serverName, std::string& serverId);
+    bool createServerDoc(const std::string& serverName, const std::string& userId, std::string& serverId);
     bool deleteServerDoc(const std::string& serverId, std::vector<std::string>& channelIds, std::vector<std::string>& memberIds);
     
     bool createChannelDoc(const std::string& serverId, const std::string& channelName, std::string& channelId);
     bool deleteChannelDoc(const std::string& channelId);
     bool deleteChannelDocs(const std::string& serverId);
     
-    bool createMessageDoc(const std::string& channelId, const std::string& authorId, const std::string& content, std::string& messageId);
+    bool createMessageDoc(const std::string& channelId, const std::string& userId, const std::string& content, std::string& messageId);
     bool deleteMessageDoc(const std::string& messageId);
     bool deleteChannelMessageDocs(const std::string& channelId);
 
@@ -119,7 +119,7 @@ private:
     bool removeUserFromAllServers();
 
     bool addRemoveMemberFromServer(const std::string& serverId, const std::string& userId, const std::string& action); // Action is $push or $pull
-    bool addRemoveServerFromUser(const std::string& userId, const std::string& serverId, const std::string& action); // Action is $push or $pull
+    bool addRemoveServerFromUser(const std::string& serverId, const std::string& userId, const std::string& action); // Action is $push or $pull
     bool addRemoveChannelFromServer(const std::string& serverId, const std::string& channelId, const std::string& action); // Action is $push or $pull
     bool addRemoveMessageFromChannel(const std::string& channelId, const std::string& messageId, const std::string& action); // Action is $push or $pull
 

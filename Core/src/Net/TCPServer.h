@@ -149,7 +149,7 @@ namespace net
             std::string serverName = packet.readString(serverNameSize);
 
             Packet<PacketType> retPacket;
-            if (m_dbHandler.createServer(userId, serverName))
+            if (m_dbHandler.createServer(serverName, userId))
                 retPacket.header.id = PacketType::Client_CreateServer_Success;
             else
                 retPacket.header.id = PacketType::Client_CreateServer_Fail;
@@ -195,11 +195,13 @@ namespace net
         {
             SERVER_INFO("[{}]: Delete Channel", client->getID());
 
+            uint32_t serverIdSize = packet.readInt();
+            std::string serverId = packet.readString(serverIdSize);
             uint32_t channelIdSize = packet.readInt();
             std::string channelId = packet.readString(channelIdSize);
 
             Packet<PacketType> retPacket;
-            if (m_dbHandler.deleteChannel(channelId))
+            if (m_dbHandler.deleteChannel(serverId, channelId))
                 retPacket.header.id = PacketType::Client_DeleteChannel_Success;
             else
                 retPacket.header.id = PacketType::Client_DeleteChannel_Fail;

@@ -42,7 +42,6 @@ void showApplicationWindow(net::TCPClient& client)
     ImGui::SameLine();
 
     // Right
-
     static char createServer_serverName[64] = "";
     static char createServer_ownerId[64] = "";
 
@@ -57,6 +56,7 @@ void showApplicationWindow(net::TCPClient& client)
     static char createChannel_serverId[64] = "";
     static char createChannel_channelName[64] = "";
 
+    static char deleteChannel_serverId[64] = "";
     static char deleteChannel_channelId[64] = "";
 
     static char sendMessage_authorId[64] = "";
@@ -68,7 +68,6 @@ void showApplicationWindow(net::TCPClient& client)
 
     static char editMessage_messageId[64] = "";
     static char editMessage_content[64] = "";
-
 
     {
         ImGui::BeginGroup();
@@ -125,12 +124,14 @@ void showApplicationWindow(net::TCPClient& client)
             }
             if (ImGui::BeginTabItem("Delete Channel"))
             {
+                ImGui::InputText("Server id", deleteChannel_serverId, IM_ARRAYSIZE(deleteChannel_serverId));
                 ImGui::InputText("Channel id", deleteChannel_channelId, IM_ARRAYSIZE(deleteChannel_channelId));
 
                 if (ImGui::Button("Execute"))
                 {
+                    std::string serverId = stripWhitespace(deleteChannel_serverId, 64);
                     std::string channelId = stripWhitespace(deleteChannel_channelId, 64);
-                    client.tryDeleteChannel(channelId);
+                    client.tryDeleteChannel(serverId, channelId);
                 }
 
                 ImGui::EndTabItem();

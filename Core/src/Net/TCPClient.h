@@ -161,11 +161,13 @@ namespace net
             send(packet);
         }
 
-        void tryDeleteChannel(const std::string& channelId)
+        void tryDeleteChannel(const std::string& serverId, const std::string& channelId)
         {
             Packet<PacketType> packet;
             packet.header.id = PacketType::Server_DeleteChannel;
 
+            packet.writeInt((uint32_t)serverId.size());
+            packet.writeString(serverId);
             packet.writeInt((uint32_t)channelId.size());
             packet.writeString(channelId);
 
