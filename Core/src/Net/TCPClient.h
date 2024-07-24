@@ -262,7 +262,7 @@ namespace net
 
         void handleRegisterFail(Packet<PacketType>& packet)
         {
-            CLIENT_INFO("Register Fail!");
+            CLIENT_ERROR("Register Fail!");
         }
 
         void handleLoginSuccess(Packet<PacketType>& packet)
@@ -273,7 +273,7 @@ namespace net
 
         void handleLoginFail(Packet<PacketType>& packet)
         {
-            CLIENT_INFO("Login Fail!");
+            CLIENT_ERROR("Login Fail!");
         }
 
         void handleLogoutSuccess(Packet<PacketType>& packet)
@@ -284,7 +284,7 @@ namespace net
 
         void handleLogoutFail(Packet<PacketType>& packet)
         {
-            CLIENT_INFO("Login Fail!");
+            CLIENT_ERROR("Login Fail!");
         }
 
         void handleCreateServerSuccess(Packet<PacketType>& packet)
@@ -294,7 +294,7 @@ namespace net
         
         void handleCreateServerFail(Packet<PacketType>& packet)
         {
-            CLIENT_INFO("Create Server Fail!");
+            CLIENT_ERROR("Create Server Fail!");
         }
         
         void handleDeleteServerSuccess(Packet<PacketType>& packet)
@@ -304,7 +304,7 @@ namespace net
         
         void handleDeleteServerFail(Packet<PacketType>& packet)
         {
-            CLIENT_INFO("Delete Server Fail!");
+            CLIENT_ERROR("Delete Server Fail!");
         }
         
         void handleCreateChannelSuccess(Packet<PacketType>& packet)
@@ -314,7 +314,7 @@ namespace net
         
         void handleCreateChannelFail(Packet<PacketType>& packet)
         {
-            CLIENT_INFO("Create Channel Fail!");
+            CLIENT_ERROR("Create Channel Fail!");
         }
         
         void handleDeleteChannelSuccess(Packet<PacketType>& packet)
@@ -324,7 +324,7 @@ namespace net
         
         void handleDeleteChannelFail(Packet<PacketType>& packet)
         {
-            CLIENT_INFO("Delete Channel Fail!");
+            CLIENT_ERROR("Delete Channel Fail!");
         }
         
         void handleJoinServerSuccess(Packet<PacketType>& packet)
@@ -334,7 +334,7 @@ namespace net
         
         void handleJoinServerFail(Packet<PacketType>& packet)
         {
-            CLIENT_INFO("Join Server Fail!");
+            CLIENT_ERROR("Join Server Fail!");
         }
         
         void handleLeaveServerSuccess(Packet<PacketType>& packet)
@@ -344,7 +344,7 @@ namespace net
         
         void handleLeaveServerFail(Packet<PacketType>& packet)
         {
-            CLIENT_INFO("Leave Server Fail!");
+            CLIENT_ERROR("Leave Server Fail!");
         }
         
         void handleSendMessageSuccess(Packet<PacketType>& packet)
@@ -354,7 +354,7 @@ namespace net
         
         void handleSendMessageFail(Packet<PacketType>& packet)
         {
-            CLIENT_INFO("Send Message Fail!");
+            CLIENT_ERROR("Send Message Fail!");
         }
         
         void handleDeleteMessageSuccess(Packet<PacketType>& packet)
@@ -364,7 +364,7 @@ namespace net
         
         void handleDeleteMessageFail(Packet<PacketType>& packet)
         {
-            CLIENT_INFO("Delete Message Fail!");
+            CLIENT_ERROR("Delete Message Fail!");
         }
         
         void handleEditMessageSuccess(Packet<PacketType>& packet)
@@ -374,7 +374,7 @@ namespace net
         
         void handleEditMessageFail(Packet<PacketType>& packet)
         {
-            CLIENT_INFO("Edit Message Fail!");
+            CLIENT_ERROR("Edit Message Fail!");
         }
 
     private:

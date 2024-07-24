@@ -54,6 +54,7 @@ using seconds_t = std::chrono::seconds;
 
 const std::string k_mongoDbUri = "mongodb://localhost:27017";
 const std::string k_database = "chatServer";
+
 const std::string k_usersCollection = "users";
 const std::string k_serversCollection = "servers";
 const std::string k_channelsCollection = "channels"; // Channels in a server
